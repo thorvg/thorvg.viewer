@@ -19,11 +19,13 @@ class Player
 {
     render()
     {
-        this.canvas = document.getElementById("p-canvas");
-        var context = this.canvas.getContext('2d');
-        var buffer = this.thorvg.render(this.canvas.width, this.canvas.height);
+        this.thorvg.update(this.canvas.width, this.canvas.height);
+        var buffer = this.thorvg.render();
+
         var clampedBuffer = Uint8ClampedArray.from(buffer);
         var imageData = new ImageData(clampedBuffer, this.canvas.width, this.canvas.height);
+
+        var context = this.canvas.getContext('2d');
         context.putImageData(imageData, 0, 0);
 
         document.getElementById("p-slider-size").innerHTML = this.canvas.width + " x " + this.canvas.height;
@@ -32,8 +34,7 @@ class Player
     load(data)
     {
         console.log(data);
-        this.thorvg.load(data);
-        console.log("After loading from string");
+        this.thorvg.load(data, this.canvas.width, this.canvas.height);
     }
 
     handleFiles(files)
@@ -53,10 +54,13 @@ class Player
 
     constructor()
     {
+        this.canvas = document.getElementById("p-canvas");
+
         document.getElementById("p-slider").value = 25;
         layout(document.getElementById("p-slider").value / 100);
 
         this.thorvg = new Module.ThorvgWasm();
+        this.load("");
         this.render();
 
         document.getElementById("p-selector-btn").addEventListener('click', ()=>{document.getElementById("p-selector").click();});
