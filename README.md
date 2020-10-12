@@ -1,1 +1,1 @@
-# thorvg.github.io
+# thorvg.viewer
