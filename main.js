@@ -34,6 +34,10 @@ class Player
     load(data)
     {
         console.log(data);
+        if (data.length == 0) {
+            data = this.thorvg.getDefaultData();
+        }
+        document.getElementById("p-data-textarea").value = data;
         this.thorvg.load(data, this.canvas.width, this.canvas.height);
     }
 
@@ -63,6 +67,8 @@ class Player
         this.load("");
         this.render();
 
+        document.getElementById("p-data-btn").addEventListener('click', ()=>{this.load(document.getElementById("p-data-textarea").value);
+                                                                             this.render();});
         document.getElementById("p-selector-btn").addEventListener('click', ()=>{document.getElementById("p-selector").click();});
         document.getElementById('p-selector').addEventListener('change', ()=>{this.handleFiles(document.getElementById('p-selector').files);});
         window.addEventListener('dragover', (evt)=>{
@@ -84,11 +90,11 @@ function layout(ratio) {
     var height = document.getElementById("p-content").clientHeight;
 
     if (width < height)
-      size = width;
+        size = width;
     else
-      size = height;
+        size = height;
 
-    size = size - 10; 
+    size = size - 10;
     size = size * ratio;
 
     if (size < 60 )
@@ -101,4 +107,37 @@ function layout(ratio) {
 function onResizeSliderDrag(value) {
     layout(value/100);
     player.render();
+}
+
+function showHideEditor(editorBlockID) {
+    var editorBlock = document.getElementById(editorBlockID);
+    var editorBtn = document.getElementById("p-editor-btn");
+    if (!editorBlock) return;
+    if (editorBlock.style.display == 'none') {
+        editorBlock.style.display = 'block';
+        editorBtn.value = "Close Editor";
+    } else {
+        editorBlock.style.display = 'none';
+        editorBtn.value = "Open Editor";
+    }
+}
+
+var prevSize;
+function bodyResized() {
+    var width = document.getElementById("p-content").clientWidth;
+    var height = document.getElementById("p-content").clientHeight;
+    var canvasW = document.getElementById("p-canvas").width;
+    var canvasH = document.getElementById("p-canvas").height;
+
+    var size = (width < height) ? width : height;
+    var canvasSize = (canvasW < canvasH) ? canvasW : canvasH;
+
+    if (canvasSize > size) {
+        layout(1);
+        player.render();
+    } else if (prevSize < size) {
+        document.getElementById("p-slider").value = (canvasSize / size) * 100;
+    }
+
+    prevSize = size;
 }
