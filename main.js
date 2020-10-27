@@ -60,7 +60,7 @@ class Player
     {
         this.canvas = document.getElementById("p-canvas");
 
-        document.getElementById("p-slider").value = 25;
+        document.getElementById("p-slider").value = 512 / 800 * 100;
         layout(document.getElementById("p-slider").value / 100);
 
         this.thorvg = new Module.ThorvgWasm();
