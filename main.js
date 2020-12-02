@@ -1,5 +1,7 @@
 //IIFE setup function.
 var player;
+var errPrefix = '[SVG] Unsuppoted';
+var errMessage = '';
 
 (function () {
     var head = document.head;
@@ -13,6 +15,15 @@ var player;
             player = new Player();
         };
     };
+})();
+
+(function () {
+    var old = console.log;
+    var logger = document.getElementById('log');
+    console.log = function (message) {
+       if (message.substring(0, errPrefix.length) == errPrefix) errMessage += message + '\n';
+       old(message);
+    }
 })();
 
 class Player
@@ -39,6 +50,11 @@ class Player
         }
         document.getElementById("p-data-textarea").value = data;
         this.thorvg.load(data, this.canvas.width, this.canvas.height);
+        if (errMessage.length > 0) {
+            errMessage = 'Please check svg file.\n' + errMessage;
+            alert(errMessage);
+            errMessage = '';
+        }
     }
 
     handleFiles(files)
