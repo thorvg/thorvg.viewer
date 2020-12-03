@@ -1,4 +1,4 @@
-# thorvg.viewer
+# ThorVG Viewer
 
 ThorVG Viewer is the SVG verification tool for ThorVG Engine. It does immediate rendering via web brwoser running on ThorVG web-assembly binary, allows real-time editing vector resources on it. Thus It won't upload your resources to any server outside, protect designer resource copyright.
 </br>
