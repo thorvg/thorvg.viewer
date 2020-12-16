@@ -79,8 +79,8 @@
   <p>Use Drag & Drop SVG files</p>
 </div>
 <div class="w3-container w3-light-grey">
-  <div style="display: -webkit-flex; display: flex; aligh-content: stretch; margin: 10px;">
-    <div class="w3-auto w3-container w3-border w3-panel w3-card w3-white w3-round-xlarge w3-content-area" style="flex-grow: 2.5;">
+  <div style="display: flex; align-content: stretch;">
+    <div class="w3-auto w3-container w3-border w3-panel w3-card w3-white w3-round-xlarge" style="flex-grow: 2.5;">
       <div id="p-content" class="flex-container w3-thorvg-area w3-margin">
         <div class="flex-container w3-thorvg-area" style="align-items:center;">
           <canvas class="pattern" id="p-canvas" style="border:1px solid #dae1e7;"></canvas>
@@ -111,6 +111,11 @@
       <div class="w3-container w3-margin" style="display: flex;">
         <input type="button" value="Apply" id="p-data-btn" class="w3-button thorvg-container-color w3-small w3-card w3-right w3-stretch w3-round ">
       </div>
+    </div>
+  </div>
+  <div id="p-log-block" class="w3-auto w3-container w3-card w3-white w3-round-xlarge">
+    <div style="margin-top: 5px;">
+      <textarea readonly autocomplete="off" id="p-log-textarea" wrap="logical" spellcheck="false" style="min-width: 100%; min-height: 150px; resize: vertical; font-size: 12px;"></textarea>
     </div>
   </div>
 </div>

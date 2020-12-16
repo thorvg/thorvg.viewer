@@ -21,7 +21,7 @@ var errMessage = '';
     var old = console.log;
     var logger = document.getElementById('log');
     console.log = function (message) {
-       if (message.substring(0, errPrefix.length) == errPrefix) errMessage += message.replace('SVG: Unsupported attributes used ', '') + '\n';
+       if (message.substring(0, errPrefix.length) == errPrefix) errMessage += message.replace('SVG: ', '') + '\n';
        old(message);
     }
 })();
@@ -51,8 +51,7 @@ class Player
         document.getElementById("p-data-textarea").value = data;
         this.thorvg.load(data, this.canvas.width, this.canvas.height);
         if (errMessage.length > 0) {
-            errMessage = 'Unsupported attribute(s):\n' + errMessage;
-            alert(errMessage);
+            document.getElementById("p-log-textarea").value += errMessage;
             errMessage = '';
         }
     }
@@ -63,6 +62,7 @@ class Player
             if (f.type.includes('svg')) {
                 var read = new FileReader();
                 read.readAsText(f);
+                document.getElementById("p-log-textarea").value = 'Current file name: ' + f.name + '\n';
                 read.onloadend = ()=> {
                     this.load(read.result);
                     this.render();
