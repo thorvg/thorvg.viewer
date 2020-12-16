@@ -28,6 +28,13 @@ var errMessage = '';
 
 class Player
 {
+    file_name;
+
+    printLogHeader()
+    {
+        document.getElementById("p-log-textarea").value = 'Current file name: ' + this.file_name + '\n';
+    }
+
     render()
     {
         this.thorvg.update(this.canvas.width, this.canvas.height);
@@ -46,8 +53,10 @@ class Player
     {
         console.log(data);
         if (data.length == 0) {
+            this.file_name = 'thorvg.svg';
             data = this.thorvg.getDefaultData();
         }
+        this.printLogHeader();
         document.getElementById("p-data-textarea").value = data;
         this.thorvg.load(data, this.canvas.width, this.canvas.height);
         if (errMessage.length > 0) {
@@ -62,7 +71,7 @@ class Player
             if (f.type.includes('svg')) {
                 var read = new FileReader();
                 read.readAsText(f);
-                document.getElementById("p-log-textarea").value = 'Current file name: ' + f.name + '\n';
+                this.file_name = f.name;
                 read.onloadend = ()=> {
                     this.load(read.result);
                     this.render();
