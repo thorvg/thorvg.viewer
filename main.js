@@ -1,6 +1,6 @@
 //IIFE setup function.
 var player;
-var errPrefix = '[SVG] Unsuppoted';
+var errPrefix = 'SVG:';
 var errMessage = '';
 
 (function () {
@@ -21,7 +21,7 @@ var errMessage = '';
     var old = console.log;
     var logger = document.getElementById('log');
     console.log = function (message) {
-       if (message.substring(0, errPrefix.length) == errPrefix) errMessage += message + '\n';
+       if (message.substring(0, errPrefix.length) == errPrefix) errMessage += message.replace(errPrefix, '') + '\n';
        old(message);
     }
 })();
