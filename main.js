@@ -32,7 +32,7 @@ class Player
 
     printLogHeader()
     {
-        document.getElementById("p-log-textarea").value = 'Current file name: ' + this.file_name + '\n';
+        document.getElementById("p-log-textarea").value = 'File: ' + this.file_name + '\n';
     }
 
     render()
