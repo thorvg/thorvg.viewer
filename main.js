@@ -21,7 +21,9 @@ var errMessage = '';
     var old = console.log;
     var logger = document.getElementById('log');
     console.log = function (message) {
-       if (message.substring(0, errPrefix.length) == errPrefix) errMessage += message.replace('SVG: ', '') + '\n';
+       if (message.substring(0, errPrefix.length) == errPrefix) {
+           if (!errMessage.match(message.replace('SVG: ', ''))) errMessage += message.replace('SVG: ', '') + '\n';
+       }
        old(message);
     }
 })();
