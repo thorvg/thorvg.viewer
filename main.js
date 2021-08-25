@@ -51,7 +51,6 @@ class Player
 
     load(data)
     {
-        console.log(data);
         if (data.length == 0) {
             this.file_name = 'thorvg.svg';
             data = this.thorvg.getDefaultData();
@@ -68,9 +67,9 @@ class Player
     handleFiles(files)
     {
         for (var i = 0, f; f = files[i]; i++) {
-            if (f.type.includes('svg')) {
+            if (f.type.includes('svg') || f.name.endsWith('.tvg')) {
                 var read = new FileReader();
-                read.readAsText(f);
+                read.readAsArrayBuffer(f);
                 this.file_name = f.name;
                 read.onloadend = ()=> {
                     this.load(read.result);
