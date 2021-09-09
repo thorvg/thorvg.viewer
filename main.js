@@ -178,11 +178,11 @@ class Player {
 }
 
 function initialize() {
-	document.addEventListener('dragenter', fileDropHighlight, false);
-	document.addEventListener('dragleave', fileDropUnhighlight, false);
-	document.addEventListener('dragover', fileDropHighlight, false);
-	document.addEventListener('drop', fileDropUnhighlight, false);
-	document.addEventListener('drop', fileDropOrBrowseHandle, false);
+	window.addEventListener('dragenter', fileDropHighlight, false);
+	window.addEventListener('dragleave', fileDropUnhighlight, false);
+	window.addEventListener('dragover', fileDropHighlight, false);
+	window.addEventListener('drop', fileDropUnhighlight, false);
+	window.addEventListener('drop', fileDropOrBrowseHandle, false);
 	document.getElementById("image-placeholder").addEventListener("click", openFileBrowse, false);
 	document.getElementById("image-file-selector").addEventListener("change", fileDropOrBrowseHandle, false);
 	
@@ -200,16 +200,16 @@ function allowedFileExtension(filename) {
 	var ext = filename.split('.').pop();
 	return (ext === "tvg") || (ext === "svg");
 }
-function fileDropUnhighlight(event) {
-	event.preventDefault();
-	event.stopPropagation();
-	document.getElementById('drop-area').classList.remove("highlight");
-}
 function fileDropHighlight(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	event.dataTransfer.dropEffect = 'copy';
 	document.getElementById('drop-area').classList.add("highlight");
+}
+function fileDropUnhighlight(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	document.getElementById('drop-area').classList.remove("highlight");
 }
 function fileDropOrBrowseHandle(event) {
 	var files = this.files || event.dataTransfer.files;
@@ -217,8 +217,11 @@ function fileDropOrBrowseHandle(event) {
 		alert("Please drag and drop a single file of supported format.");
 		return false;
 	}
-	if (!player) return false;
-	player.loadFile(files[0]);
+	if (!player) {
+		alert("Webassembly module is not ready yet. Please try again.");
+	} else {
+		player.loadFile(files[0]);
+	}
 	return false;
 }
 
