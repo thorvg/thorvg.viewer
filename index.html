@@ -12,8 +12,8 @@
 <body>
 	<section id="drop-area">
 		<canvas id="image-canvas" width="512" height="512" class="hidden"></canvas>
-		<div id="image-placeholder">Drop an image here or click to browse<br/>Supported formats are .tvg, .svg, .jpg, .png<br/><small>ThorVG Loader works locally. File(s) won't be uploaded to the internet.</small></div>
-		<input id="image-file-selector" type="file" accept=".tvg,.svg,.jpg,.png">
+		<div id="image-placeholder">Drop a file here or click to browse<br/>Supported formats are .tvg, .svg<br/><small>ThorVG Viewer works on the local device. File(s) won't be uploaded to the internet.</small></div>
+		<input id="image-file-selector" type="file" accept=".tvg,.svg">
 	</section>
 	<aside class="hidden">
 		<nav>
@@ -46,13 +46,13 @@
 				<div id="zoom-value">512 x 512</div>
 			</div>
 			<div id="layers" class="tab active">
-				<div class="placeholder">Load image first<br/><small>This is a layers tab. After loading an image file, there you can browse its elements.</small></div>
+				<div class="placeholder">Load a resource first<br/><small>This is a layers tab. After loading a file, you can browse its elements.</small></div>
 			</div>
 			<div id="properties" class="tab">
-				<div class="placeholder">Load image first<br/><small>This is a properties tab. After selecting a paint from the layers list, there you can change its properties like visibility or composite method.</small></div>
+				<div class="placeholder">Load a resource first<br/><small>This is a properties tab. After selecting a paint from the layers list, you can change its properties such as the visibility and composite methods.</small></div>
 			</div>
 			<div id="file" class="tab">
-				<div class="placeholder">Load image first<br/><small>This is a file tab. There you can find informations about the loaded file and export functionallity.</small></div>
+				<div class="placeholder">Load a resource first<br/><small>This is a file tab. You can see the file information and use the exporting functions.</small></div>
 			</div>
 		</div>
 	</aside>
