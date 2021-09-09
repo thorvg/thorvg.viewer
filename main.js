@@ -198,7 +198,7 @@ function initialize() {
 //file upload
 function allowedFileExtension(filename) {
 	var ext = filename.split('.').pop();
-	return (ext === "tvg") || (ext === "svg") || (ext === "jpg") || (ext === "png");
+	return (ext === "tvg") || (ext === "svg");
 }
 function fileDropUnhighlight(event) {
 	event.preventDefault();
