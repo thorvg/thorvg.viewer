@@ -1,11 +1,21 @@
 # ThorVG Viewer
 
-ThorVG provides the SVG verification tool for ThorVG Engine. It does immediate rendering via web browser running on ThorVG web-assembly binary, allows real-time editing vector elements on it. It won't upload your resources to any server outside, protect designer resource copyright.
-</br>
-<p align="center">
-  <img width="860" height="268" src="https://github.com/Samsung/thorvg.viewer/blob/master/res/flow.png">
-</p>
+ThorVG Viewer is a verification tool for ThorVG Engine. It does immediate rendering via web browser running on ThorVG web-assembly binary and allows real-time editing vector elements on it. Loader works locally and it does not upload the resources to any server outside, protecting the designer resource copyright.
 
-Use [ThorVG Viewer](https://samsung.github.io/thorvg.viewer/)
+https://user-images.githubusercontent.com/71131832/130445967-fb8f7d81-9c89-4598-b7e4-2c046d5d7438.mp4
 
-[Guide to ThorVG Viewer development environment](https://github.com/Samsung/thorvg/wiki/Guide-to-ThorVG-Viewer-development-environment)
+## Usage
+Click to use [ThorVG Viewer](https://samsung.github.io/thorvg.viewer/) via github pages
+
+## Other
+[ThorVG github page](https://github.com/Samsung/thorvg)
+
+[Guide to ThorVG Viewer development](https://github.com/Samsung/thorvg/wiki/ThorVG-Viewer-Development-Guide)
+
+## Tricks
+### Loading image from outside source
+You can load a graphic from an outside source by entering its link through the url parameter `s` (`?s=[link]`). Such url can be easily shared online. Examples:
+
+https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg
+
+https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/test.tvg
