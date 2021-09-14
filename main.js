@@ -86,11 +86,12 @@ class Player {
 		layers.textContent = '';
 		var parent = layers;
 		var parentDepth = 1;
-		for (let i = 0; i < layersMem.length; i += 4) {
+		for (let i = 0; i < layersMem.length; i += 5) {
 			let id = layersMem[i];
 			let depth = layersMem[i + 1];
 			let type = layersMem[i + 2];
 			let compositeMethod = layersMem[i + 3];
+			let opacity = layersMem[i + 4];
 			if (depth > parentDepth) {
 				var block = layerBlockCreate(depth);
 				parent = parent.appendChild(block);
@@ -101,7 +102,7 @@ class Player {
 				}
 				parentDepth = depth;
 			}
-			parent.appendChild(layerCreate(id, depth, type, compositeMethod));
+			parent.appendChild(layerCreate(id, depth, type, compositeMethod, opacity));
 		}
 		
 		//preferences tab
@@ -327,6 +328,7 @@ function togglePaintVisibility() {
 
 	var icon = event.currentTarget.getElementsByTagName("i")[0];
 	var visible = !icon.classList.contains("fa-square-o");
+	var defaultOpacity = 255;
 
 	var layers = document.getElementById("layers").getElementsByTagName("div");
 	for (var i = 0; i < layers.length; i++) {
@@ -335,6 +337,7 @@ function togglePaintVisibility() {
 			icon.classList.toggle("fa-square-o", visible);
 			icon.classList.toggle("fa-minus-square-o", !visible);
 			layers[i].setAttribute('tvg-visible', visible);
+			defaultOpacity = parseInt(layers[i].getAttribute('tvg-opacity'));
 			break;
 		}
 	}
@@ -346,7 +349,7 @@ function togglePaintVisibility() {
 		icon.classList.toggle("fa-minus-square-o", !visible);
 	}
 
-	player.setPaintOpacity(parseInt(tvgId), visible ? 255 : 0);
+	player.setPaintOpacity(parseInt(tvgId), visible ? defaultOpacity : 0);
 }
 
 function showLayerProperties(event) {
@@ -378,12 +381,13 @@ function layerBlockCreate(depth) {
 	return block;
 }
 
-function layerCreate(id, depth, type, compositeMethod) {
+function layerCreate(id, depth, type, compositeMethod, opacity) {
 	var layer = document.createElement("div");
 	layer.setAttribute('class', 'layer');
 	layer.setAttribute('tvg-id', id);
 	layer.setAttribute('tvg-type', type);
 	layer.setAttribute('tvg-comp', compositeMethod);
+	layer.setAttribute('tvg-opacity', opacity);
 	layer.style.paddingLeft = Math.min(48 + 16 * depth, 224) + "px";
 
 	if (type == Types.Scene) {
