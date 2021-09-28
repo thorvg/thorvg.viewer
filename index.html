@@ -13,7 +13,7 @@
 	<section id="drop-area">
 		<canvas id="image-canvas" width="512" height="512" class="hidden"></canvas>
 		<div id="image-placeholder">Drop a file here or click to browse (.tvg, .svg)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
-		<input id="image-file-selector" type="file" accept=".tvg,.svg">
+		<input id="image-file-selector" type="file" accept=".tvg,.svg" multiple>
 	</section>
 	<aside class="hidden">
 		<nav>
@@ -30,6 +30,10 @@
 			<hr />
 			<a id="nav-file">
 				<i class="fa fa-file-text-o"></i>
+			</a>
+			<hr />
+			<a id="nav-files-list">
+				<i class="fa fa-files-o"></i>
 			</a>
 			<div class="bottom-nav">
 				<label id="nav-dark-mode" class="toggle">
@@ -53,6 +57,9 @@
 			</div>
 			<div id="file" class="tab">
 				<div class="placeholder">Load a resource first<br/><small>This is a file tab. You can see the file information and use the exporting functions.</small></div>
+			</div>
+			<div id="files-list" class="tab">
+				<div class="placeholder">Load a resource first<br/><small>This is a files list tab. You can see the list of files, switch between them and bulk export.</small></div>
 			</div>
 		</div>
 	</aside>

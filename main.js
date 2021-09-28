@@ -1,4 +1,5 @@
 var player;
+var filesList = new Array();
 
 (function () {
 	window.onload = initialize();
@@ -183,20 +184,29 @@ function initialize() {
 	window.addEventListener('dragleave', fileDropUnhighlight, false);
 	window.addEventListener('dragover', fileDropHighlight, false);
 	window.addEventListener('drop', fileDropUnhighlight, false);
-	window.addEventListener('drop', fileDropOrBrowseHandle, false);
+	window.addEventListener('drop', (evt)=>{
+		fileDropOrBrowseHandle(evt.dataTransfer.files);
+	}, false);
 	document.getElementById("image-placeholder").addEventListener("click", openFileBrowse, false);
-	document.getElementById("image-file-selector").addEventListener("change", fileDropOrBrowseHandle, false);
-	
+	document.getElementById("image-file-selector").addEventListener("change", (evt)=>{
+		fileDropOrBrowseHandle(document.getElementById('image-file-selector').files);
+	}, false);
+
 	document.getElementById("nav-toggle-aside").addEventListener("click", toggleAside, false);
 	document.getElementById("nav-layers").addEventListener("click", showLayers, false);
 	document.getElementById("nav-properties").addEventListener("click", showProperties, false);
 	document.getElementById("nav-file").addEventListener("click", showFile, false);
+	document.getElementById("nav-files-list").addEventListener("click", showFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", darkModeToggle, false);
-	
+
 	document.getElementById("zoom-slider").addEventListener("input", onZoomSliderSlide, false);
 }
 
 //file upload
+function openFileBrowse() {
+	document.getElementById('image-file-selector').click();
+}
+
 function allowedFileExtension(filename) {
 	var ext = filename.split('.').pop();
 	return (ext === "tvg") || (ext === "svg");
@@ -212,22 +222,40 @@ function fileDropUnhighlight(event) {
 	event.stopPropagation();
 	document.getElementById('drop-area').classList.remove("highlight");
 }
-function fileDropOrBrowseHandle(event) {
-	var files = this.files || event.dataTransfer.files;
-	if (files.length != 1 || !allowedFileExtension(files[0].name)) {
-		alert("Please drag and drop a single file of supported format.");
+function fileDropOrBrowseHandle(files) {
+	let supportedFiles = false;
+	for (let i = 0, file; file = files[i]; ++i) {
+		if (!allowedFileExtension(file.name)) continue;
+		filesList.push(file);
+		supportedFiles = true;
+	}
+	if (!supportedFiles) {
+		alert("Please use file(s) of a supported format.");
 		return false;
 	}
-	if (!player) {
-		alert("Webassembly module is not ready yet. Please try again.");
-	} else {
-		player.loadFile(files[0]);
-	}
+
+	loadFileFromList(filesList[filesList.length - 1]);
+	createFilesListTab();
 	return false;
 }
 
-function openFileBrowse() {
-	document.getElementById('image-file-selector').click();
+function createFilesListTab() {
+	var fileslisttab = document.getElementById("files-list");
+	fileslisttab.textContent = '';
+	for (let i = 0; i < filesList.length; ++i) {
+		let file = filesList[i];
+		var lineFile = filesListLineCreate(file.name, file.size);
+		lineFile.addEventListener("dblclick", (evt)=>{ loadFileFromList(file); }, false);
+		fileslisttab.appendChild(lineFile);
+	}
+}
+
+function loadFileFromList(file) {
+	if (!player) {
+		alert("Webassembly module is not ready yet. Please try again.");
+		return;
+	}
+	player.loadFile(file);
 }
 
 //aside and nav
@@ -263,6 +291,9 @@ function showProperties() {
 function showFile() {
 	showPage("file");
 }
+function showFilesList() {
+	showPage("files-list");
+}
 function darkModeToggle(event) {
 	document.body.classList.toggle("dark-mode", event.target.checked);
 }
@@ -284,7 +315,7 @@ function enableZoomSlider(enable) {
 function onZoomSliderSlide(event) {
 	if (!player) return;
 	var value = event.target.value;
-	
+
 	var size = 512 * (value / 100 + 0.25);
 	player.canvas.width = size;
 	player.canvas.height = size;
@@ -300,7 +331,7 @@ function loadFromWindowURL() {
 		alert("Applied a file of unsupported format.");
 		return;
 	}
-	
+
 	if (!player) return false;
 	player.loadUrl(imageUrl);
 }
@@ -397,21 +428,21 @@ function layerCreate(id, depth, type, compositeMethod, opacity) {
 		caret.addEventListener("click", toggleSceneChilds, false);
 		layer.appendChild(caret);
 	}
-	
+
 	var icon = document.createElement("i");
 	icon.setAttribute('class', 'icon fa ' + TypesIcons[type]);
 	layer.appendChild(icon);
-	
+
 	var name = document.createElement("span");
 	name.innerHTML = TypesNames[type];
 	layer.appendChild(name);
-	
+
 	var visibility = document.createElement("a");
 	visibility.setAttribute('class', 'visibility');
 	visibility.innerHTML = '<i class="fa fa-square-o"></i>';
 	visibility.addEventListener("click", togglePaintVisibility, false);
 	layer.appendChild(visibility);
-	
+
 	if (compositeMethod != CompositeMethod.None) {
 		layer.classList.add("composite");
 		name.innerHTML += " <small>(" + CompositeMethodNames[compositeMethod] + ")</small>";
@@ -423,11 +454,11 @@ function layerCreate(id, depth, type, compositeMethod, opacity) {
 		depthSpan.innerHTML = depth;
 		layer.appendChild(depthSpan);
 	}
-	
+
 	layer.addEventListener("mouseenter", highlightLayer, false);
 	layer.addEventListener("mouseleave", unhighlightLayer, false);
 	layer.addEventListener("dblclick", showLayerProperties, false);
-	
+
 	return layer;
 }
 
@@ -435,21 +466,21 @@ function layerCreate(id, depth, type, compositeMethod, opacity) {
 function propertiesLayerCreate(type, compositeMethod, visible) {
 	var layer = document.createElement("div");
 	layer.setAttribute('class', 'layer');
-	
+
 	var icon = document.createElement("i");
 	icon.setAttribute('class', 'icon fa ' + TypesIcons[type]);
 	layer.appendChild(icon);
-	
+
 	var name = document.createElement("span");
 	name.innerHTML = TypesNames[type];
 	layer.appendChild(name);
-	
+
 	var visibility = document.createElement("a");
 	visibility.setAttribute('class', 'visibility');
 	visibility.innerHTML = '<i class="fa ' + ((visible===true)?'fa-square-o':'fa-minus-square-o') + '"></i>';
 	visibility.addEventListener("click", togglePaintVisibility, false);
 	layer.appendChild(visibility);
-	
+
 	return layer;
 }
 
@@ -478,6 +509,26 @@ function fileHeaderCreate(text) {
 	header.setAttribute('class', 'header');
 	header.innerHTML = text;
 	return header;
+}
+
+function bytesToSize(bytes) {
+	if (bytes <= 0) return '0 byte';
+	var sizes = ['bytes', 'kB', 'MB'];
+	var i = (bytes > 1024) ? ((bytes > 1048576) ? 2 : 1) : 0;
+	return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
+}
+function filesListLineCreate(name, size) {
+	var nameLine = document.createElement("span");
+	nameLine.setAttribute('class', 'line-name');
+	nameLine.innerHTML = name;
+	var detailsLine = document.createElement("span");
+	detailsLine.setAttribute('class', 'line-details');
+	detailsLine.innerHTML = bytesToSize(size);
+	var line = document.createElement("div");
+	line.setAttribute('class', 'line');
+	line.appendChild(nameLine);
+	line.appendChild(detailsLine);
+	return line;
 }
 
 function exportCanvasToTvg() {
