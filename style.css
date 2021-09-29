@@ -178,16 +178,19 @@ aside > div > #aside-top {
 	text-align: center;
 }
 aside > div > div.tab {
-	overflow-y: scroll;
-	height: 100%;
 	display: none;
-	position: relative;
+	height: 100%;
 }
 aside > div > div.tab.active {
 	display: block;
 }
 aside > div > div.tab .hidden {
 	display: none;
+}
+aside > div .scrollable {
+	height: 100%;
+	overflow-y: scroll;
+	position: relative;
 }
 
 .layer {
@@ -265,6 +268,10 @@ aside > div > div .header {
 	color: #909090;
 }
 
+#files-list .container {
+	padding-bottom: 64px;
+}
+
 #files-list .line {
 	cursor: pointer;
 	position: relative;
@@ -283,6 +290,36 @@ aside > div > div .header {
 .line-details {
 	display: block;
 	font-size: 13px;
+}
+
+.upload {
+	position: absolute;
+	bottom: 16px;
+	left: 50%;
+	margin-left: -105px;
+}
+.upload > a {
+	background-color: #5a8be4;
+	color: white;
+	display: inline-block;
+	line-height: 32px;
+	text-align: center;
+}
+.upload > a:hover,
+.popup > div > footer .button:hover {
+	background-color: #5071b1;
+}
+.upload > a > i {
+	padding-right: 8px;
+}
+.upload > a#add-file-local {
+	border-radius: 3px 0 0 3px;
+	width: 135px;
+}
+.upload > a#add-file-url {
+    border-radius: 0 3px 3px 0;
+    border-left: 1px solid #93afe7;
+	width: 75px;
 }
 
 .placeholder {
@@ -316,4 +353,100 @@ body.dark-mode section {
 }
 #image-file-selector {
 	display: none;
+}
+
+.popup {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	z-index: 9999;
+	background-color: #0003;
+}
+.popup > div {
+    max-width: 600px;
+    margin: 48px auto;
+	background-color: white;
+	border-radius: 5px;
+	box-shadow: 0px 8px 24px 0px #666;
+	display: flex;
+    flex-direction: column;
+    transition: transform .4s ease;
+    transform: translateY(-48px);
+}
+.popup > div.faded {
+	transform: none;
+}
+.popup > div > header {
+	padding: 8px 16px;
+	font-size: 18px;
+}
+.popup > div > .input-group {
+	position: relative;
+	margin: 8px 16px;
+	display: flex;
+}
+.popup > div > .input-group > * {
+	line-height: 24px;
+	padding: 8px 16px;
+	border: 1px solid #cdd9ed;
+	transition: all 0.3s ease;
+	white-space: nowrap;
+	display: block;
+}
+.popup > div > .input-group > span {
+	border-radius: 3px 0 0 3px;
+	border-right: none;
+	color: #99a3ba;
+	background: #eef4ff;
+}
+.popup > div > .input-group > input {
+	border-radius: 0 3px 3px 0;
+	color: #99a3ba;
+	background: #fff;
+	-webkit-appearance: none;
+	flex: 1 1 auto;
+	font-size: 15px;
+	font-weight: 500;
+}
+.popup > div > .input-group > input::placeholder {
+	color: #CBD1DC;
+}
+.popup > div > .input-group > input:focus {
+	outline: none;
+	border-color: #5a8be4;
+}
+.popup > div > .input-group:focus-within > span {
+	color: #fff;
+	background: #5a8be4;
+	border-color: #5a8be4;
+}
+.popup > div > .posttext {
+	padding: 8px 16px;
+	text-align: justify;
+	font-size: 14px;
+	color: #777;
+}
+.popup > div > .posttext a {
+	color: #5a8be4;
+	word-break: break-all;
+}
+.popup > div > .posttext a:hover {
+	text-decoration: underline;
+}
+.popup > div > footer {
+	padding: 8px 16px;
+	display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+}
+.popup > div > footer .button {
+	background-color: #5a8be4;
+	color: white;
+	border-radius: 3px;
+	line-height: 32px;
+	padding: 0 12px;
+	display: inline-block;
 }

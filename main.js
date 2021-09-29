@@ -76,6 +76,7 @@ class Player {
 			this.createTabs();
 			showImageCanvas();
 			enableZoomSlider();
+			deletePopup();
 		};
 		request.send();
 	}
@@ -187,10 +188,15 @@ function initialize() {
 	window.addEventListener('drop', (evt)=>{
 		fileDropOrBrowseHandle(evt.dataTransfer.files);
 	}, false);
+	
 	document.getElementById("image-placeholder").addEventListener("click", openFileBrowse, false);
 	document.getElementById("image-file-selector").addEventListener("change", (evt)=>{
 		fileDropOrBrowseHandle(document.getElementById('image-file-selector').files);
+		evt.target.value = '';
 	}, false);
+	
+	document.getElementById("add-file-local").addEventListener("click", openFileBrowse, false);
+	document.getElementById("add-file-url").addEventListener("click", buildAddByURLPopup, false);
 
 	document.getElementById("nav-toggle-aside").addEventListener("click", toggleAside, false);
 	document.getElementById("nav-layers").addEventListener("click", showLayers, false);
@@ -240,9 +246,9 @@ function fileDropOrBrowseHandle(files) {
 }
 
 function createFilesListTab() {
-	var fileslisttab = document.getElementById("files-list");
-	fileslisttab.textContent = '';
-	fileslisttab.appendChild(headerCreate("List of files"));
+	var container = document.getElementById("files-list").children[0];
+	container.textContent = '';
+	container.appendChild(headerCreate("List of files"));
 	for (let i = 0; i < filesList.length; ++i) {
 		let file = filesList[i];
 		var lineFile = filesListLineCreate(file);
@@ -251,7 +257,7 @@ function createFilesListTab() {
 				if (el.tagName === "A") return;
 			loadFileFromList(file);
 		}, false);
-		fileslisttab.appendChild(lineFile);
+		container.appendChild(lineFile);
 	}
 }
 
@@ -576,3 +582,41 @@ function highlightLayer(event) {
 function unhighlightLayer(event) {
 	player.rerender(); // TODO; dont rerender if will do highlightLayer
 }
+
+
+function deletePopup() {
+	var popup = document.getElementsByClassName("popup")[0];
+	if (popup) popup.parentNode.removeChild(popup);
+}
+function addByUrl() {
+	var url = document.getElementById("url-field").value;
+	
+	if (!allowedFileExtension(url)) {
+		alert("Applied a file of unsupported format.");
+		return;
+	}
+
+	if (!player) return false;
+	player.loadUrl(url);
+}
+function buildAddByURLPopup() {
+	var popup = document.createElement("div");
+	popup.innerHTML = '<div><header>Add file by URL</header><div class="input-group"><span>https://</span><input type="text" id="url-field" placeholder="raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg" /></div><div class="posttext"><a href="https://github.com/Samsung/thorvg.viewer" target="_blank">Thorvg Viewer</a> can load graphics from an outside source. To load a resource at startup, enter its link through the url parameter s (?s=[link]). Such url can be easily shared online. Live example: <a href="https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg" target="_blank" id="url-example">https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg</a></div><footer><a class="button" id="popup-cancel">Cancel</a><a class="button" id="popup-ok">Add</a></footer></div>';
+	popup.setAttribute('class', 'popup');
+	document.body.appendChild(popup);
+	
+	requestAnimationFrame(() => {
+		popup.children[0].setAttribute('class', 'faded');
+	});
+	
+	document.getElementById("url-field").addEventListener("input", (evt)=>{
+		var example = document.getElementById("url-example");
+		var exampleUrl = "https://samsung.github.io/thorvg.viewer/?s=" + encodeURIComponent(evt.target.value);
+		example.href = exampleUrl;
+		example.innerHTML = exampleUrl;
+	}, false);
+	
+	document.getElementById("popup-cancel").addEventListener("click", deletePopup, false);
+	document.getElementById("popup-ok").addEventListener("click", addByUrl, false);
+}
+	
