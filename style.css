@@ -189,6 +189,7 @@ aside > div > div.tab.active {
 aside > div > div.tab .hidden {
 	display: none;
 }
+
 .layer {
 	position: relative;
 	height: 48px;
@@ -256,7 +257,7 @@ aside > div > div.tab .hidden {
 	font-size: 13px;
 }
 
-#file .header {
+aside > div > div .header {
 	padding: 12px 12px 0px;
 	text-transform: uppercase;
 	font-weight: 600;
@@ -266,6 +267,17 @@ aside > div > div.tab .hidden {
 
 #files-list .line {
 	cursor: pointer;
+	position: relative;
+}
+#files-list .trash {
+	position: absolute;
+	width: 24px;
+	line-height: 34px;
+	right: 8px;
+	top: 8px;
+	text-align: center;
+	font-size: 20px;
+	color: #777;
 }
 
 .line-details {

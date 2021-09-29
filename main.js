@@ -117,10 +117,10 @@ class Player {
 
 		var file = document.getElementById("file");
 		file.textContent = '';
-		file.appendChild(fileHeaderCreate("Details"));
+		file.appendChild(headerCreate("Details"));
 		file.appendChild(titledLineCreate("Filename", this.filename));
 		file.appendChild(titledLineCreate("Canvas size", originalSizeText));
-		file.appendChild(fileHeaderCreate("Export"));
+		file.appendChild(headerCreate("Export"));
 		var lineExportTvg = propertiesLineCreate("Export .tvg file");
 		lineExportTvg.addEventListener("click", exportCanvasToTvg, false);
 		file.appendChild(lineExportTvg);
@@ -242,10 +242,15 @@ function fileDropOrBrowseHandle(files) {
 function createFilesListTab() {
 	var fileslisttab = document.getElementById("files-list");
 	fileslisttab.textContent = '';
+	fileslisttab.appendChild(headerCreate("List of files"));
 	for (let i = 0; i < filesList.length; ++i) {
 		let file = filesList[i];
-		var lineFile = filesListLineCreate(file.name, file.size);
-		lineFile.addEventListener("dblclick", (evt)=>{ loadFileFromList(file); }, false);
+		var lineFile = filesListLineCreate(file);
+		lineFile.addEventListener("dblclick", (event)=>{
+			for (var el = event.target; !el.classList.contains('line'); el = el.parentNode)
+				if (el.tagName === "A") return;
+			loadFileFromList(file);
+		}, false);
 		fileslisttab.appendChild(lineFile);
 	}
 }
@@ -504,7 +509,7 @@ function titledLineCreate(title, text) {
 	return line;
 }
 
-function fileHeaderCreate(text) {
+function headerCreate(text) {
 	var header = document.createElement("div");
 	header.setAttribute('class', 'header');
 	header.innerHTML = text;
@@ -517,17 +522,30 @@ function bytesToSize(bytes) {
 	var i = (bytes > 1024) ? ((bytes > 1048576) ? 2 : 1) : 0;
 	return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
 }
-function filesListLineCreate(name, size) {
-	var nameLine = document.createElement("span");
-	nameLine.setAttribute('class', 'line-name');
-	nameLine.innerHTML = name;
-	var detailsLine = document.createElement("span");
-	detailsLine.setAttribute('class', 'line-details');
-	detailsLine.innerHTML = bytesToSize(size);
+function filesListLineCreate(file) {
 	var line = document.createElement("div");
 	line.setAttribute('class', 'line');
+
+	var nameLine = document.createElement("span");
+	nameLine.setAttribute('class', 'line-name');
+	nameLine.innerHTML = file.name;
 	line.appendChild(nameLine);
+	var detailsLine = document.createElement("span");
+	detailsLine.setAttribute('class', 'line-details');
+	detailsLine.innerHTML = bytesToSize(file.size);
 	line.appendChild(detailsLine);
+
+	var trash = document.createElement("a");
+	trash.setAttribute('class', 'trash');
+	trash.innerHTML = '<i class="fa fa-trash-o"></i>';
+	trash.addEventListener("click", (event)=>{
+		var line = event.currentTarget.parentElement;
+		line.parentNode.removeChild(line);
+		var index = filesList.indexOf(file);
+		if (index !== -1) filesList.splice(index, 1);
+	}, false);
+	line.appendChild(trash);
+
 	return line;
 }
 
