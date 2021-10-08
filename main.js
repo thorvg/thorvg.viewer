@@ -358,7 +358,7 @@ const CompositeMethodNames = [ "None", "ClipPath", "AlphaMask", "InvAlphaMask" ]
 function toggleSceneChilds() {
 	var icon = event.currentTarget.getElementsByTagName("i")[0];
 	var block = event.currentTarget.parentElement.nextElementSibling;
-	if (!block) return;
+	if (!block || !block.classList.contains("block")) return;
 	var visible = block.classList.toggle("hidden");
 	icon.classList.toggle("fa-caret-right", visible);
 	icon.classList.toggle("fa-caret-down", !visible);

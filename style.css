@@ -296,7 +296,7 @@ aside > div > div .header {
 	position: absolute;
 	bottom: 16px;
 	left: 50%;
-	margin-left: -105px;
+	margin-left: -110px;
 }
 .upload > a {
 	background-color: #5a8be4;
@@ -319,7 +319,7 @@ aside > div > div .header {
 .upload > a#add-file-url {
     border-radius: 0 3px 3px 0;
     border-left: 1px solid #93afe7;
-	width: 75px;
+	width: 85px;
 }
 
 .placeholder {
