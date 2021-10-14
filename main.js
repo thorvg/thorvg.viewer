@@ -22,7 +22,8 @@ const consoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 	var baseConsole = console.log;
 	console.log = (...args) => {
 		if (args[0] && typeof args[0] === 'string') {
-			consoleLog(args[0]);
+			if (args[0].startsWith("SVG:")) consoleLog(args[0], consoleLogTypes.Warning);
+			else if (!args[0].startsWith("SW_ENGINE:")) consoleLog(args[0]);
 		}
 		baseConsole(...args);
 	};
