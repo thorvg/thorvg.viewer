@@ -144,7 +144,7 @@ aside > nav a > .fa {
 }
 aside > nav label {
 	display: block;
-	margin-bottom: 12px;
+	margin: 12px 0;
 }
 aside > div {
 	height: 100%;
@@ -332,19 +332,24 @@ aside > div > div .header {
 
 section {
 	flex: 1 1 0;
+	display: flex;
+	flex-flow: column nowrap;
+}
+section .hidden {
+	display: none;
+}
+section #image-area {
+	flex: 1 1 0;
 	overflow: hidden;
 	display: flex;
 	align-items: center;
 	justify-content: center;
 }
-section .hidden {
-	display: none;
-}
-body.dark-mode section {
+body.dark-mode section #image-area {
 	background-color: #1b2124;
 	color: #f6f6f6;
 }
-#drop-area.highlight {
+section #image-area.highlight {
 	background-color: #272f34;
 	color: #f6f6f6;
 }
@@ -353,6 +358,36 @@ body.dark-mode section {
 }
 #image-file-selector {
 	display: none;
+}
+section #console-area {
+	background-color: #fdfdfd;
+	border-top: 1px solid #e5e7ec;
+	height: 150px;
+	overflow-y: scroll;
+}
+section #console-area > span {
+	display: block;
+	font-family: 'Noto Mono', 'DejaVu Sans Mono';
+	user-select: text;
+	-webkit-user-select: text;
+	padding-left: 24px;
+	line-height:  23px;
+	border-bottom: 1px solid #f8f8f8;
+}
+section #console-area > span.console-type-inner {
+	color: #2969b3;
+	background-color: #f2f9fd;
+	border-bottom-color: #d5e8f8;
+}
+section #console-area > span.console-type-error {
+	color: #b32936;
+	background-color: #fdf2f5;
+	border-bottom-color: #f8d5db;
+}
+section #console-area > span.console-type-warning {
+	color: #b38a29;
+	background-color: #fdf8f2;
+	border-bottom-color: #f8ebd5;
 }
 
 .popup {

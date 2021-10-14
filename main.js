@@ -17,6 +17,31 @@ var filesList = new Array();
 	};
 })();
 
+const consoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'console-type-error', Warning : 'console-type-warning' };
+(function () {
+	var baseConsole = console.log;
+	console.log = (...args) => {
+		if (args[0] && typeof args[0] === 'string') {
+			consoleLog(args[0]);
+		}
+		baseConsole(...args);
+	};
+})();
+function consoleLog(message, type = consoleLogTypes.None) {
+	var consoleWindow = document.getElementById("console-area");
+	var line = document.createElement("span");
+	if (type) line.setAttribute('class', type);
+	line.innerHTML = message
+		.replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+	consoleWindow.appendChild(line);
+	//Scrolling to the end makes it significantly slower
+	//consoleWindow.scrollTop = consoleWindow.scrollHeight;
+}
+
 class Player {
 	render(force) {
 		if (!this.thorvg.update(this.canvas.width, this.canvas.height, force))
@@ -37,6 +62,7 @@ class Player {
 	}
 	
 	load(data, name) {
+		consoleLog("Loading file " + name, consoleLogTypes.Inner);
 		var ext = name.split('.').pop();
 		return this.thorvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height);
 	}
@@ -122,9 +148,12 @@ class Player {
 		file.appendChild(titledLineCreate("Filename", this.filename));
 		file.appendChild(titledLineCreate("Canvas size", originalSizeText));
 		file.appendChild(headerCreate("Export"));
-		var lineExportTvg = propertiesLineCreate("Export .tvg file");
-		lineExportTvg.addEventListener("click", exportCanvasToTvg, false);
-		file.appendChild(lineExportTvg);
+		var lineExportCompressedTvg = propertiesLineCreate("Export .tvg file (compression)");
+		lineExportCompressedTvg.addEventListener("click", () => {player.saveTvg(true)}, false);
+		file.appendChild(lineExportCompressedTvg);
+		var lineExportNotCompressedTvg = propertiesLineCreate("Export .tvg file (no compression)");
+		lineExportNotCompressedTvg.addEventListener("click", () => {player.saveTvg(false)}, false);
+		file.appendChild(lineExportNotCompressedTvg);
 		var lineExportPng = propertiesLineCreate("Export .png file");
 		lineExportPng.addEventListener("click", exportCanvasToPng, false);
 		file.appendChild(lineExportPng);
@@ -133,8 +162,8 @@ class Player {
 		showLayers();
 	}
 	
-	saveTvg() {
-		if (this.thorvg.saveTvg()) {
+	saveTvg(compress) {
+		if (this.thorvg.saveTvg(compress)) {
 			let data = FS.readFile('file.tvg');
 			if (data.length < 33) {
 				alert("Couldn't save canvas. Invalid size of the generated file.");
@@ -150,7 +179,9 @@ class Player {
 			link.click();
 			document.body.removeChild(link);
 		} else {
-			alert("Couldn't save canvas. Error message: " + this.thorvg.getError());
+			let message = "Couldn't save canvas. Error message: " + this.thorvg.getError();
+			consoleLog(message, consoleLogTypes.Error);
+			alert(message);
 		}
 	}
 	
@@ -204,6 +235,7 @@ function initialize() {
 	document.getElementById("nav-file").addEventListener("click", showFile, false);
 	document.getElementById("nav-files-list").addEventListener("click", showFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", darkModeToggle, false);
+	document.getElementById("nav-console").addEventListener("click", consoleWindowToggle, false);
 
 	document.getElementById("zoom-slider").addEventListener("input", onZoomSliderSlide, false);
 }
@@ -221,12 +253,12 @@ function fileDropHighlight(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	event.dataTransfer.dropEffect = 'copy';
-	document.getElementById('drop-area').classList.add("highlight");
+	document.getElementById('image-area').classList.add("highlight");
 }
 function fileDropUnhighlight(event) {
 	event.preventDefault();
 	event.stopPropagation();
-	document.getElementById('drop-area').classList.remove("highlight");
+	document.getElementById('image-area').classList.remove("highlight");
 }
 function fileDropOrBrowseHandle(files) {
 	let supportedFiles = false;
@@ -307,6 +339,9 @@ function showFilesList() {
 }
 function darkModeToggle(event) {
 	document.body.classList.toggle("dark-mode", event.target.checked);
+}
+function consoleWindowToggle(event) {
+	document.getElementById("console-area").classList.toggle("hidden");
 }
 
 //main image section
@@ -553,10 +588,6 @@ function filesListLineCreate(file) {
 	line.appendChild(trash);
 
 	return line;
-}
-
-function exportCanvasToTvg() {
-	player.saveTvg();
 }
 
 function changeExtension(filename, extension) {

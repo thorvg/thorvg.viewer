@@ -10,10 +10,13 @@
 	<title>ThorVG Viewer | Thor Vector Graphics</title>
 </head>
 <body>
-	<section id="drop-area">
-		<canvas id="image-canvas" width="512" height="512" class="hidden"></canvas>
-		<div id="image-placeholder">Drop a file here or click to browse (.tvg, .svg)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
-		<input id="image-file-selector" type="file" accept=".tvg,.svg" multiple>
+	<section>
+		<div id="image-area">
+			<canvas id="image-canvas" width="512" height="512" class="hidden"></canvas>
+			<div id="image-placeholder">Drop a file here or click to browse (.tvg, .svg)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
+			<input id="image-file-selector" type="file" accept=".tvg,.svg" multiple>
+		</div>
+		<div id="console-area" class="hidden"></div>
 	</section>
 	<aside class="hidden">
 		<nav>
@@ -36,6 +39,10 @@
 				<i class="fa fa-files-o"></i>
 			</a>
 			<div class="bottom-nav">
+				<a id="nav-console">
+					<i class="fa fa-cog"></i>
+				</a>
+				<hr />
 				<label id="nav-dark-mode" class="toggle">
 					<input type="checkbox">
 					<span></span>
