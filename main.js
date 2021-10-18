@@ -209,6 +209,7 @@ class Player {
 	constructor() {
 		this.thorvg = new Module.ThorvgWasm();
 		this.canvas = document.getElementById("image-canvas");
+		consoleLog("Thorvg module loaded correctly", consoleLogTypes.Inner);
 	}
 }
 
