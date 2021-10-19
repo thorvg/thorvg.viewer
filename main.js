@@ -3,7 +3,7 @@ var filesList = new Array();
 
 (function () {
 	window.onload = initialize();
-	
+
 	var script = document.createElement('script');
 	script.type = 'text/javascript';
 	script.src = 'thorvg-wasm.js';
@@ -47,27 +47,27 @@ class Player {
 	render(force) {
 		if (!this.thorvg.update(this.canvas.width, this.canvas.height, force))
 			return false;
-		
+
 		var buffer = this.thorvg.render();
 		var clampedBuffer = Uint8ClampedArray.from(buffer);
 		if (clampedBuffer.length == 0) return false;
-		
+
 		var imageData = new ImageData(clampedBuffer, this.canvas.width, this.canvas.height);
 		this.imageData = imageData;
-		
+
 		var context = this.canvas.getContext('2d');
 		context.putImageData(imageData, 0, 0);
-		
+
 		document.getElementById("zoom-value").innerHTML = this.canvas.width + " x " + this.canvas.height;
 		return true;
 	}
-	
+
 	load(data, name) {
 		consoleLog("Loading file " + name, consoleLogTypes.Inner);
 		var ext = name.split('.').pop();
 		return this.thorvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height);
 	}
-	
+
 	loadFile(file) {
 		let read = new FileReader();
 		read.readAsArrayBuffer(file);
@@ -76,14 +76,14 @@ class Player {
 				alert("Couldn't load an image (" + file.name + "). Error message: " + this.thorvg.getError());
 				return;
 			}
-			
+
 			this.filename = file.name;
 			this.createTabs();
 			showImageCanvas();
 			enableZoomSlider();
 		}
 	}
-	
+
 	loadUrl(url) {
 		let request = new XMLHttpRequest();
 		request.open('GET', url, true);
@@ -98,7 +98,7 @@ class Player {
 				alert("Couldn't load an image (" + name + "). Error message: " + this.thorvg.getError());
 				return;
 			}
-			
+
 			this.filename = name;
 			this.createTabs();
 			showImageCanvas();
@@ -107,7 +107,7 @@ class Player {
 		};
 		request.send();
 	}
-	
+
 	createTabs() {
 		//layers tab
 		var layersMem = this.thorvg.layers();
@@ -133,13 +133,13 @@ class Player {
 			}
 			parent.appendChild(layerCreate(id, depth, type, compositeMethod, opacity));
 		}
-		
+
 		//preferences tab
 		propertiesTabCreate(layers.getElementsByClassName('layer')[0]);
-		
+
 		//file tab
 		var originalSize = Float32Array.from(this.thorvg.originalSize());
-		var originalSizeText = ((originalSize[0] % 1 === 0) && (originalSize[1] % 1 === 0)) ? 
+		var originalSizeText = ((originalSize[0] % 1 === 0) && (originalSize[1] % 1 === 0)) ?
 			originalSize[0].toFixed(0) + " x " + originalSize[1].toFixed(0) :
 			originalSize[0].toFixed(2) + " x " + originalSize[1].toFixed(2);
 
@@ -162,7 +162,7 @@ class Player {
 		//switch to layers tab
 		showLayers();
 	}
-	
+
 	saveTvg(compress) {
 		if (this.thorvg.saveTvg(compress)) {
 			let data = FS.readFile('file.tvg');
@@ -172,7 +172,7 @@ class Player {
 			}
 
 			var blob = new Blob([data], {type: 'application/octet-stream'});
-			
+
 			var link = document.createElement("a");
 			link.setAttribute('href', URL.createObjectURL(blob));
 			link.setAttribute('download', changeExtension(player.filename, "tvg"));
@@ -185,27 +185,27 @@ class Player {
 			alert(message);
 		}
 	}
-	
+
 	highlightLayer(paintId) {
 		var bounds = Float32Array.from(this.thorvg.bounds(paintId));
 		if (bounds.length != 4) return;
-		
+
 		var context = this.canvas.getContext('2d');
 		context.putImageData(this.imageData, 0, 0);
 		context.fillStyle = "#5a8be466";
 		context.fillRect(bounds[0], bounds[1], bounds[2], bounds[3]);
 	}
-	
+
 	setPaintOpacity(paintId, opacity) {
 		this.thorvg.setOpacity(paintId, opacity);
 		this.render(true);
 	}
-	
+
 	rerender() {
 		var context = this.canvas.getContext('2d');
 		context.putImageData(this.imageData, 0, 0);
 	}
-	
+
 	constructor() {
 		this.thorvg = new Module.ThorvgWasm();
 		this.canvas = document.getElementById("image-canvas");
@@ -221,13 +221,13 @@ function initialize() {
 	window.addEventListener('drop', (evt)=>{
 		fileDropOrBrowseHandle(evt.dataTransfer.files);
 	}, false);
-	
+
 	document.getElementById("image-placeholder").addEventListener("click", openFileBrowse, false);
 	document.getElementById("image-file-selector").addEventListener("change", (evt)=>{
 		fileDropOrBrowseHandle(document.getElementById('image-file-selector').files);
 		evt.target.value = '';
 	}, false);
-	
+
 	document.getElementById("add-file-local").addEventListener("click", openFileBrowse, false);
 	document.getElementById("add-file-url").addEventListener("click", buildAddByURLPopup, false);
 
@@ -238,6 +238,8 @@ function initialize() {
 	document.getElementById("nav-files-list").addEventListener("click", showFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", darkModeToggle, false);
 	document.getElementById("nav-console").addEventListener("click", consoleWindowToggle, false);
+
+	document.getElementById("console-bottom-scroll").addEventListener("click", consoleScrollBottom, false);
 
 	document.getElementById("zoom-slider").addEventListener("input", onZoomSliderSlide, false);
 }
@@ -344,6 +346,10 @@ function darkModeToggle(event) {
 }
 function consoleWindowToggle(event) {
 	document.getElementById("console-area").classList.toggle("hidden");
+}
+function consoleScrollBottom(event) {
+	var consoleWindow = document.getElementById("console-area");
+	consoleWindow.scrollTop = consoleWindow.scrollHeight;
 }
 
 //main image section
@@ -623,7 +629,7 @@ function deletePopup() {
 }
 function addByUrl() {
 	var url = document.getElementById("url-field").value;
-	
+
 	if (!allowedFileExtension(url)) {
 		alert("Applied a file of unsupported format.");
 		return;
@@ -637,18 +643,18 @@ function buildAddByURLPopup() {
 	popup.innerHTML = '<div><header>Add file by URL</header><div class="input-group"><span>https://</span><input type="text" id="url-field" placeholder="raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg" /></div><div class="posttext"><a href="https://github.com/Samsung/thorvg.viewer" target="_blank">Thorvg Viewer</a> can load graphics from an outside source. To load a resource at startup, enter its link through the url parameter s (?s=[link]). Such url can be easily shared online. Live example: <a href="https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg" target="_blank" id="url-example">https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg</a></div><footer><a class="button" id="popup-cancel">Cancel</a><a class="button" id="popup-ok">Add</a></footer></div>';
 	popup.setAttribute('class', 'popup');
 	document.body.appendChild(popup);
-	
+
 	requestAnimationFrame(() => {
 		popup.children[0].setAttribute('class', 'faded');
 	});
-	
+
 	document.getElementById("url-field").addEventListener("input", (evt)=>{
 		var example = document.getElementById("url-example");
 		var exampleUrl = "https://samsung.github.io/thorvg.viewer/?s=" + encodeURIComponent(evt.target.value);
 		example.href = exampleUrl;
 		example.innerHTML = exampleUrl;
 	}, false);
-	
+
 	document.getElementById("popup-cancel").addEventListener("click", deletePopup, false);
 	document.getElementById("popup-ok").addEventListener("click", addByUrl, false);
 }

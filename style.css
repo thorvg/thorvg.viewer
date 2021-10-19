@@ -317,8 +317,8 @@ aside > div > div .header {
 	width: 135px;
 }
 .upload > a#add-file-url {
-    border-radius: 0 3px 3px 0;
-    border-left: 1px solid #93afe7;
+	border-radius: 0 3px 3px 0;
+	border-left: 1px solid #93afe7;
 	width: 85px;
 }
 
@@ -334,6 +334,7 @@ section {
 	flex: 1 1 0;
 	display: flex;
 	flex-flow: column nowrap;
+	position: relative;
 }
 section .hidden {
 	display: none;
@@ -367,7 +368,7 @@ section #console-area {
 }
 section #console-area > span {
 	display: block;
-	font-family: 'Noto Mono', 'DejaVu Sans Mono';
+	font-family: 'Noto Mono', 'DejaVu Sans Mono', monospace;
 	user-select: text;
 	-webkit-user-select: text;
 	padding-left: 24px;
@@ -389,6 +390,22 @@ section #console-area > span.console-type-warning {
 	background-color: #fdf8f2;
 	border-bottom-color: #f8ebd5;
 }
+#console-bottom-scroll {
+	position: absolute;
+	right: 16px;
+	bottom: 16px;
+	border-radius: 50%;
+	border: 1px solid #e5e7ec;
+	background: #fdfdfd;
+	color: #e5e7ec;
+	width: 32px;
+	line-height: 32px;
+	text-align: center;
+}
+#console-bottom-scroll:hover {
+	border-color: #aab3bb;
+	color: #aab3bb;
+}
 
 .popup {
 	position: fixed;
@@ -401,15 +418,15 @@ section #console-area > span.console-type-warning {
 	background-color: #0003;
 }
 .popup > div {
-    max-width: 600px;
-    margin: 48px auto;
+	max-width: 600px;
+	margin: 48px auto;
 	background-color: white;
 	border-radius: 5px;
 	box-shadow: 0px 8px 24px 0px #666;
 	display: flex;
-    flex-direction: column;
-    transition: transform .4s ease;
-    transform: translateY(-48px);
+	flex-direction: column;
+	transition: transform .4s ease;
+	transform: translateY(-48px);
 }
 .popup > div.faded {
 	transform: none;
@@ -474,8 +491,8 @@ section #console-area > span.console-type-warning {
 .popup > div > footer {
 	padding: 8px 16px;
 	display: flex;
-    justify-content: flex-end;
-    gap: 12px;
+	justify-content: flex-end;
+	gap: 12px;
 }
 .popup > div > footer .button {
 	background-color: #5a8be4;
