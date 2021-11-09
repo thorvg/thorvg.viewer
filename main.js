@@ -58,7 +58,9 @@ class Player {
 		var context = this.canvas.getContext('2d');
 		context.putImageData(imageData, 0, 0);
 
-		document.getElementById("zoom-value").innerHTML = this.canvas.width + " x " + this.canvas.height;
+		var zoomvalue = document.getElementById("zoom-value");
+		zoomvalue.innerHTML = this.canvas.width + " x " + this.canvas.height;
+		zoomvalue.classList.remove("incorrect");
 		return true;
 	}
 
@@ -80,7 +82,7 @@ class Player {
 			this.filename = file.name;
 			this.createTabs();
 			showImageCanvas();
-			enableZoomSlider();
+			enableZoomContainer();
 		}
 	}
 
@@ -102,7 +104,7 @@ class Player {
 			this.filename = name;
 			this.createTabs();
 			showImageCanvas();
-			enableZoomSlider();
+			enableZoomContainer();
 			deletePopup();
 		};
 		request.send();
@@ -242,6 +244,7 @@ function initialize() {
 	document.getElementById("console-bottom-scroll").addEventListener("click", consoleScrollBottom, false);
 
 	document.getElementById("zoom-slider").addEventListener("input", onZoomSliderSlide, false);
+	document.getElementById("zoom-value").addEventListener("keydown", onZoomValueKeyDown, false);
 }
 
 //file upload
@@ -361,9 +364,11 @@ function showImageCanvas() {
 }
 
 //zoom slider
-function enableZoomSlider(enable) {
+function enableZoomContainer(enable = true) {
 	var slider = document.getElementById("zoom-slider");
-	slider.disabled = enable;
+	slider.disabled = !enable;
+	var value = document.getElementById("zoom-value");
+	value.contentEditable = enable;
 }
 
 function onZoomSliderSlide(event) {
@@ -374,6 +379,21 @@ function onZoomSliderSlide(event) {
 	player.canvas.width = size;
 	player.canvas.height = size;
 	player.render(false);
+}
+
+function onZoomValueKeyDown(event) {
+	if (event.code === 'Enter') {
+		var value = event.srcElement.innerHTML;
+		var matched = value.match(/^(\d{1,5})\s*x\s*(\d{1,5})$/);
+		if (matched) {
+			player.canvas.width = matched[1];
+			player.canvas.height = matched[2];
+			player.render(true);
+		} else {
+			event.srcElement.classList.add("incorrect");
+		}
+		event.preventDefault();
+	}
 }
 
 
