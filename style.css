@@ -177,7 +177,7 @@ aside > div > #aside-top {
 	padding: 8px;
 	text-align: center;
 	white-space: nowrap;
-	overflow-x: scroll;
+	overflow-x: hidden;
 }
 #aside-top #zoom-value.incorrect {
 	outline-color: red;
