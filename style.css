@@ -28,14 +28,12 @@ a {
 	transition: all 0.4s ease;
 }
 ::selection {
-	color:#fff;
-	background:#1BA1C7;
+	color: #fff;
+	background: #1ba1c7;
 }
 hr {
-	border: none;
-	height: 1px;
-	color: #333;
-	background-color: #e5e7ec;
+	border: 0;
+	border-bottom: 1px solid #e5e7ec;
 }
 input[type=range] {
 	-webkit-appearance: none;
@@ -117,7 +115,7 @@ aside > nav {
 	left: 0;
 	position: absolute;
 	border-right: 1px solid #e5e7ec;
-	background-color: #ffffff;
+	background-color: #fff;
 	display: flex;
 	flex-direction: column;
 }
@@ -156,7 +154,7 @@ aside > div > #aside-top {
 	top: 0;
 	width: 100%;
 	height: 65px;
-	background-color: #ffffff;
+	background-color: #fff;
 	border-bottom: 1px solid #e5e7ec;
 	position: absolute;
 }
