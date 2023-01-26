@@ -5,17 +5,17 @@ ThorVG Viewer is a verification tool for ThorVG Engine. It does immediate render
 https://user-images.githubusercontent.com/71131832/130445967-fb8f7d81-9c89-4598-b7e4-2c046d5d7438.mp4
 
 ## Usage
-Click to use [ThorVG Viewer](https://samsung.github.io/thorvg.viewer/) via github pages
+Click to use [ThorVG Viewer](https://thorvg.github.io/thorvg.viewer/) via github pages
 
 ## Other
-[ThorVG github page](https://github.com/Samsung/thorvg)
+[ThorVG github page](https://github.com/thorvg/thorvg)
 
-[Guide to ThorVG Viewer development](https://github.com/Samsung/thorvg/wiki/ThorVG-Viewer-Development-Guide)
+[Guide to ThorVG Viewer development](https://github.com/thorvg/thorvg/wiki/ThorVG-Viewer-Development-Guide)
 
 ## Tricks
 ### Loading image from outside source
 You can load a graphic from an outside source by entering its link through the url parameter `s` (`?s=[link]`). Such url can be easily shared online. Examples:
 
-https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg
+https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/master/src/examples/images/tiger.svg
 
-https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/test.tvg
+https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/master/src/examples/images/test.tvg
