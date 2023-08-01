@@ -1,4 +1,25 @@
-/* ThorVG Viewer Michal Maciola 2021 */
+/*
+ * Copyright (c) 2021 - 2023 the ThorVG project. All rights reserved.
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
 * {
 	-webkit-box-sizing: border-box;
 	-moz-box-sizing: border-box;
@@ -6,9 +27,11 @@
 	margin: 0;
 	padding: 0;
 }
+
 html, body {
 	height: 100%;
 }
+
 body {
 	color: #484848;
 	background-color: #f6f6f6;
@@ -27,14 +50,17 @@ a {
 	cursor: pointer;
 	transition: all 0.4s ease;
 }
+
 ::selection {
 	color: #fff;
 	background: #1ba1c7;
 }
+
 hr {
 	border: 0;
 	border-bottom: 1px solid #e5e7ec;
 }
+
 input[type=range] {
 	-webkit-appearance: none;
 	height: 5px;
@@ -42,6 +68,7 @@ input[type=range] {
 	background-color: #5a8be4;
 	outline: none;
 }
+
 input[type=range]::-webkit-slider-thumb {
 	-webkit-appearance: none;
 	appearance: none;
@@ -52,6 +79,7 @@ input[type=range]::-webkit-slider-thumb {
 	background-color: #fff;
 	cursor: pointer;
 }
+
 input[type=range]::-moz-range-thumb {
 	width: 15px;
 	height: 15px;
@@ -60,12 +88,14 @@ input[type=range]::-moz-range-thumb {
 	background-color: #fff;
 	cursor: pointer;
 }
+
 .toggle input {
 	opacity: 0;
 	width: 0;
 	height: 0;
 	float: left;
 }
+
 .toggle span {
 	position: relative;
 	display: block;
@@ -77,9 +107,11 @@ input[type=range]::-moz-range-thumb {
 	cursor: pointer;
 	margin: 0 auto;
 }
+
 .toggle input:checked + span {
 	background-color: #5a8be4;
 }
+
 .toggle span:before {
 	position: absolute;
 	content: "";
@@ -92,9 +124,11 @@ input[type=range]::-moz-range-thumb {
 	left: 4px;
 	transition: all 0.2s;
 }
+
 .toggle input:checked + span:before {
 	transform: translateX(19px);
 }
+
 
 aside {
 	background-color: #fdfdfd;
@@ -105,10 +139,12 @@ aside {
 	padding-left: 64px;
 	position: relative;
 }
+
 aside.hidden {
 	width: 64px;
 	flex-basis: 64px;
 }
+
 aside > nav {
 	width: 64px;
 	height: 100%;
@@ -119,20 +155,25 @@ aside > nav {
 	display: flex;
 	flex-direction: column;
 }
+
 aside > nav .bottom-nav {
 	margin-top: auto;
 }
+
 aside > nav a {
 	display: block;
 	color: #aab3bb;
 }
+
 aside > nav a.active {
 	color: #484848;
 }
+
 aside > nav a:hover {
 	color: #38435a;
 	background-color: #f1f4f7;
 }
+
 aside > nav a > .fa {
 	padding: 16px;
 	font-size: 20px;
@@ -140,16 +181,19 @@ aside > nav a > .fa {
 	text-align: center;
 	display: block;
 }
+
 aside > nav label {
 	display: block;
 	margin: 12px 0;
 }
+
 aside > div {
 	height: 100%;
 	padding-top: 65px;
 	position: relative;
 	overflow: hidden;
 }
+
 aside > div > #aside-top {
 	top: 0;
 	width: 100%;
@@ -158,15 +202,80 @@ aside > div > #aside-top {
 	border-bottom: 1px solid #e5e7ec;
 	position: absolute;
 }
+
 #zoom-slider-container {
 	width: 60%;
 	position: absolute;
 	padding-left: 8px;
 	top: 19px;
 }
+
+#progress-slider-container {
+	width: 100%;
+	position: absolute;
+	padding-left: 8px;
+	top: 85px;
+}
+
+#progress-slider {
+	width: 95%;
+}
+
+#progress #progress-value {
+	width: 40%;
+	left: 58%;
+	top: 85px;
+	position: absolute;
+	line-height: 48px;
+	padding: 8px;
+	text-align: right;
+	white-space: nowrap;
+	overflow-x: hidden;
+}
+
+.progress-play {
+	border: none;
+	background: #5a8be4;
+	color: #ffffff;
+	padding: 5px 5px;
+	font-size: 16px;
+	cursor: pointer;
+	position: absolute;
+	width: 40px;
+	top: 125px;
+	left: 75px;
+}
+
+.progress-pause {
+	border: none;
+	background: #5a8be4;
+	color: #ffffff;
+	padding: 5px 5px;
+	font-size: 16px;
+	cursor: pointer;
+	position: absolute;
+	width: 40px;
+	top: 125px;
+	left: 120px;
+}
+
+.progress-stop {
+	border: none;
+	background: #5a8be4;
+	color: #ffffff;
+	padding: 5px 5px;
+	font-size: 16px;
+	cursor: pointer;
+	position: absolute;
+	width: 40px;
+	top: 125px;
+	left: 165px;
+}
+
 #aside-top #zoom-slider {
 	width: 100%;
 }
+
 #aside-top #zoom-value {
 	width: 40%;
 	left: 60%;
@@ -177,20 +286,25 @@ aside > div > #aside-top {
 	white-space: nowrap;
 	overflow-x: hidden;
 }
+
 #aside-top #zoom-value.incorrect {
 	outline-color: red;
 	-webkit-animation: shake .5s linear;
 }
+
 aside > div > div.tab {
 	display: none;
 	height: 100%;
 }
+
 aside > div > div.tab.active {
 	display: block;
 }
+
 aside > div > div.tab .hidden {
 	display: none;
 }
+
 aside > div .scrollable {
 	height: 100%;
 	overflow-y: scroll;
@@ -203,12 +317,15 @@ aside > div .scrollable {
 	line-height: 32px;
 	padding: 8px 8px 8px 64px;
 }
-#layers .layer {
+
+#scene-graph .layer {
 	cursor: pointer;
 }
-#layers .layer:hover, .line:hover {
+
+#scene-graph .layer:hover, .line:hover {
 	background-color: #f1f4f7;
 }
+
 .layer > .caret {
 	position: absolute;
 	width: 32px;
@@ -217,6 +334,7 @@ aside > div .scrollable {
 	top: 8px;
 	text-align: center;
 }
+
 .layer > .icon {
 	position: absolute;
 	width: 24px;
@@ -225,6 +343,7 @@ aside > div .scrollable {
 	top: 8px;
 	text-align: center;
 }
+
 .layer > .visibility {
 	position: absolute;
 	width: 24px;
@@ -235,12 +354,14 @@ aside > div .scrollable {
 	font-size: 20px;
 	color: #777;
 }
+
 .layer > .depthSpan {
 	position: absolute;
 	left: 8px;
 	line-height: 32px;
 	font-size: 11px;
 }
+
 .layer.composite::before {
 	content: "";
 	display: block;
@@ -255,10 +376,12 @@ aside > div .scrollable {
 #properties .layer {
 	padding: 8px 8px 8px 40px;
 }
+
 .line {
 	display: block;
 	padding: 6px 12px;
 }
+
 .line-title {
 	display: block;
 	font-size: 13px;
@@ -280,6 +403,7 @@ aside > div > div .header {
 	cursor: pointer;
 	position: relative;
 }
+
 #files-list .trash {
 	position: absolute;
 	width: 24px;
@@ -302,6 +426,7 @@ aside > div > div .header {
 	left: 50%;
 	margin-left: -110px;
 }
+
 .upload > a {
 	background-color: #5a8be4;
 	color: white;
@@ -309,17 +434,21 @@ aside > div > div .header {
 	line-height: 32px;
 	text-align: center;
 }
+
 .upload > a:hover,
 .popup > div > footer .button:hover {
 	background-color: #5071b1;
 }
+
 .upload > a > i {
 	padding-right: 8px;
 }
+
 .upload > a#add-file-local {
 	border-radius: 3px 0 0 3px;
 	width: 135px;
 }
+
 .upload > a#add-file-url {
 	border-radius: 0 3px 3px 0;
 	border-left: 1px solid #93afe7;
@@ -332,6 +461,7 @@ aside > div > div .header {
 	top: 45%;
 	padding: 0 8px;
 	margin-top: -32px;
+	width: 100%;
 }
 
 section {
@@ -341,9 +471,11 @@ section {
 	position: relative;
 	overflow: hidden;
 }
+
 section .hidden {
 	display: none;
 }
+
 section #image-area {
 	flex: 1 1 0;
 	overflow: hidden;
@@ -351,26 +483,32 @@ section #image-area {
 	align-items: center;
 	justify-content: center;
 }
+
 body.dark-mode section #image-area {
 	background-color: #1b2124;
 	color: #f6f6f6;
 }
+
 section #image-area.highlight {
 	background-color: #272f34;
 	color: #f6f6f6;
 }
+
 #image-placeholder {
 	text-align: center;
 }
+
 #image-file-selector {
 	display: none;
 }
+
 section #console-area {
 	background-color: #fdfdfd;
 	border-top: 1px solid #e5e7ec;
 	height: 150px;
 	overflow-y: scroll;
 }
+
 section #console-area > span {
 	display: block;
 	font-family: 'Noto Mono', 'DejaVu Sans Mono', monospace;
@@ -380,21 +518,25 @@ section #console-area > span {
 	line-height:  23px;
 	border-bottom: 1px solid #f8f8f8;
 }
+
 section #console-area > span.console-type-inner {
 	color: #2969b3;
 	background-color: #f2f9fd;
 	border-bottom-color: #d5e8f8;
 }
+
 section #console-area > span.console-type-error {
 	color: #b32936;
 	background-color: #fdf2f5;
 	border-bottom-color: #f8d5db;
 }
+
 section #console-area > span.console-type-warning {
 	color: #b38a29;
 	background-color: #fdf8f2;
 	border-bottom-color: #f8ebd5;
 }
+
 #console-bottom-scroll {
 	position: absolute;
 	right: 16px;
@@ -407,6 +549,7 @@ section #console-area > span.console-type-warning {
 	line-height: 32px;
 	text-align: center;
 }
+
 #console-bottom-scroll:hover {
 	border-color: #aab3bb;
 	color: #aab3bb;
@@ -422,6 +565,7 @@ section #console-area > span.console-type-warning {
 	z-index: 9999;
 	background-color: #0003;
 }
+
 .popup > div {
 	max-width: 600px;
 	margin: 48px auto;
@@ -433,18 +577,22 @@ section #console-area > span.console-type-warning {
 	transition: transform .4s ease;
 	transform: translateY(-48px);
 }
+
 .popup > div.faded {
 	transform: none;
 }
+
 .popup > div > header {
 	padding: 8px 16px;
 	font-size: 18px;
 }
+
 .popup > div > .input-group {
 	position: relative;
 	margin: 8px 16px;
 	display: flex;
 }
+
 .popup > div > .input-group > * {
 	line-height: 24px;
 	padding: 8px 16px;
@@ -453,12 +601,14 @@ section #console-area > span.console-type-warning {
 	white-space: nowrap;
 	display: block;
 }
+
 .popup > div > .input-group > span {
 	border-radius: 3px 0 0 3px;
 	border-right: none;
 	color: #99a3ba;
 	background: #eef4ff;
 }
+
 .popup > div > .input-group > input {
 	border-radius: 0 3px 3px 0;
 	color: #99a3ba;
@@ -468,37 +618,45 @@ section #console-area > span.console-type-warning {
 	font-size: 15px;
 	font-weight: 500;
 }
+
 .popup > div > .input-group > input::placeholder {
 	color: #CBD1DC;
 }
+
 .popup > div > .input-group > input:focus {
 	outline: none;
 	border-color: #5a8be4;
 }
+
 .popup > div > .input-group:focus-within > span {
 	color: #fff;
 	background: #5a8be4;
 	border-color: #5a8be4;
 }
+
 .popup > div > .posttext {
 	padding: 8px 16px;
 	text-align: justify;
 	font-size: 14px;
 	color: #777;
 }
+
 .popup > div > .posttext a {
 	color: #5a8be4;
 	word-break: break-all;
 }
+
 .popup > div > .posttext a:hover {
 	text-decoration: underline;
 }
+
 .popup > div > footer {
 	padding: 8px 16px;
 	display: flex;
 	justify-content: flex-end;
 	gap: 12px;
 }
+
 .popup > div > footer .button {
 	background-color: #5a8be4;
 	color: white;

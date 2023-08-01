@@ -1,9 +1,31 @@
+<!--
+ * Copyright (c) 2020 - 2023 the ThorVG project. All rights reserved.
+
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ -->
+
 <!DOCTYPE html>
 <html>
 <head>
 	<meta charset="UTF-8" />
-	<meta name="description" content="Viewer application for Thor Vector Graphics platform-independent portable drawing library">
-	<meta name="author" content="Michal Maciola">
+	<meta name="description" content="ThorVG Viewer Application">
+	<meta name="author" content="co-authored by Shinwoo Kim, Hermet Park, Michal Maciola">
 	<link rel="stylesheet"  href="style.css">
 	<link rel="icon" type="image/svg+xml" href="favicon.svg">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
@@ -12,9 +34,9 @@
 <body>
 	<section>
 		<div id="image-area">
-			<canvas id="image-canvas" width="512" height="512" class="hidden"></canvas>
-			<div id="image-placeholder">Drop a file here or click to browse (.tvg, .svg)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
-			<input id="image-file-selector" type="file" accept=".tvg,.svg" multiple>
+			<canvas id="image-canvas" width="800" height="800" class="hidden"></canvas>
+			<div id="image-placeholder">Drop a file here or click to browse (.tvg, .svg, .json)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
+			<input id="image-file-selector" type="file" accept=".tvg,.svg,.json" multiple>
 		</div>
 		<div id="console-area" class="hidden">
 			<a id="console-bottom-scroll" title="Scroll to the bottom"><i class="fa fa-chevron-down"></i></a>
@@ -26,10 +48,11 @@
 				<i class="fa fa-bars"></i>
 			</a>
 			<hr />
-			<a id="nav-layers" class="active">
-				<i class="fa fa-folder-o"></i>
+			<a id="nav-progress">
+				<i class="fa fa-play"></i>
 			</a>
-			<a id="nav-properties">
+			<hr />
+			<a id="nav-scene-graph">
 				<i class="fa fa-pencil-square-o"></i>
 			</a>
 			<hr />
@@ -37,39 +60,45 @@
 				<i class="fa fa-file-text-o"></i>
 			</a>
 			<hr />
-			<a id="nav-files-list">
+			<a id="nav-files-list" class="active">
 				<i class="fa fa-files-o"></i>
 			</a>
 			<div class="bottom-nav">
-				<a id="nav-console">
-					<i class="fa fa-cog"></i>
-				</a>
-				<hr />
 				<label id="nav-dark-mode" class="toggle">
 					<input type="checkbox">
 					<span></span>
 				</label>
+				<hr />
+				<a id="nav-console">
+					<i class="fa fa-history"></i>
+				</a>
 			</div>
 		</nav>
 		<div>
 			<div id="aside-top">
 				<div id="zoom-slider-container">
-					<input id="zoom-slider" type="range" min="0" max="200" value="75" disabled />
+					<input id="zoom-slider" type="range" min="0" max="300" value="100" disabled />
 				</div>
-				<div id="zoom-value">512 x 512</div>
+				<div id="zoom-value">800 x 800</div>
 			</div>
-			<div id="layers" class="tab scrollable active">
-				<div class="placeholder">Load a resource first<br/><small>This is a layers tab. After loading a file, you can browse its elements.</small></div>
+			<div id="progress" class="tab">
+				<div id ="progress-slider-container">
+					<input id="progress-slider" type="range" min="0" max="100" value="0" disabled />
+				</div>
+				<div id="progress-value">0 / 0</div>
+				<button class="progress-play" id="progress-play"><i class="fa fa-play"></i></button>
+				<button class="progress-pause" id="progress-pause"><i class="fa fa-pause"></i></button>
+				<button class="progress-stop" id="progress-stop"><i class="fa fa-stop"></i></button>
 			</div>
-			<div id="properties" class="tab scrollable">
-				<div class="placeholder">Load a resource first<br/><small>This is a properties tab. After selecting a paint from the layers list, you can change its properties such as the visibility and composite methods.</small></div>
+			<div id="scene-graph" class="tab scrollable">
+				<div class="placeholder">No scene-tree information</br><small>Please load a resource first</small></div>
 			</div>
 			<div id="file" class="tab scrollable">
-				<div class="placeholder">Load a resource first<br/><small>This is a file tab. You can see the file information and use the exporting functions.</small></div>
+				<div class="placeholder">No file information</br><small>Please load a resource first</small></div>
 			</div>
-			<div id="files-list" class="tab">
+			<div id="files-list" class="tab scrollable active">
 				<div class="container scrollable">
-					<div class="placeholder">Load a resource first<br/><small>This is a files list tab. You can see the list of files, switch between them and bulk export.</small></div>
+					<div class="placeholder">No file lists</br><small>Please load a resource first</small></div>
 				</div>
 				<div class="upload">
 					<a id="add-file-local"><i class="fa fa-upload"></i>Add files</a><a id="add-file-url">from url</a>

@@ -1,6 +1,29 @@
-var player;
-var filesList = new Array();
+/*
+ * Copyright (c) 2020 - 2023 the ThorVG project. All rights reserved.
 
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+var player;
+var filesList;
+
+//initialization
 (function () {
 	window.onload = initialize();
 
@@ -11,24 +34,31 @@ var filesList = new Array();
 
 	script.onload = _ => {
 		Module.onRuntimeInitialized = _ => {
+			filesList = new Array();
 			player = new Player();
 			loadFromWindowURL();
 		};
 	};
 })();
 
-const consoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'console-type-error', Warning : 'console-type-warning' };
+//console output
+const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'console-type-error', Warning : 'console-type-warning' };
+
 (function () {
 	var baseConsole = console.log;
 	console.log = (...args) => {
 		if (args[0] && typeof args[0] === 'string') {
-			if (args[0].startsWith("SVG:")) consoleLog(args[0], consoleLogTypes.Warning);
-			else if (!args[0].startsWith("SW_ENGINE:")) consoleLog(args[0]);
+			//slice at the log reset color: "\033[0m"
+			if (player.filetype === "svg" && args[0].indexOf("SVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
+			else if (player.filetype === "tvg" && args[0].indexOf("TVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
+			else if (player.filetype === "json" && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 		}
-		baseConsole(...args);
+		//baseConsole(...args);
 	};
 })();
-function consoleLog(message, type = consoleLogTypes.None) {
+
+//console message
+function consoleLog(message, type = ConsoleLogTypes.None) {
 	var consoleWindow = document.getElementById("console-area");
 	var line = document.createElement("span");
 	if (type) line.setAttribute('class', type);
@@ -43,46 +73,111 @@ function consoleLog(message, type = consoleLogTypes.None) {
 	//consoleWindow.scrollTop = consoleWindow.scrollHeight;
 }
 
+//for playing animations
+function animLoop() {
+	if (!player) return;
+	if (player.update()) {
+		player.render();
+		refreshProgressValue()
+		window.requestAnimationFrame(animLoop);
+	}
+}
+
 class Player {
-	render(force) {
-		if (!this.thorvg.update(this.canvas.width, this.canvas.height, force))
-			return false;
 
-		var buffer = this.thorvg.render();
-		var clampedBuffer = Uint8ClampedArray.from(buffer);
-		if (clampedBuffer.length == 0) return false;
+	filetype = "unknown";		//current file format: (tvg, svg, json)
+	curFrame = 0;
+	beginTime = 0;
+	totalFrame = 0;
+	repeat = true;
+	playing = false;
+	highlighted = false;
 
-		var imageData = new ImageData(clampedBuffer, this.canvas.width, this.canvas.height);
-		this.imageData = imageData;
-
+	flush() {
 		var context = this.canvas.getContext('2d');
-		context.putImageData(imageData, 0, 0);
 
-		var zoomvalue = document.getElementById("zoom-value");
-		zoomvalue.innerHTML = this.canvas.width + " x " + this.canvas.height;
-		zoomvalue.classList.remove("incorrect");
-		return true;
+		//draw the content image first
+		context.putImageData(this.imageData, 0, 0);
+
+		//draw the highlight image later
+		if (this.highlighted) {
+			context.fillStyle = "#5a8be466";
+			context.fillRect(this.geomHighlight[0], this.geomHighlight[1], this.geomHighlight[2], this.geomHighlight[3]);
+		}
 	}
 
-	load(data, name) {
-		consoleLog("Loading file " + name, consoleLogTypes.Inner);
-		var ext = name.split('.').pop();
-		return this.thorvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height);
+	render() {
+		this.tvg.resize(this.canvas.width, this.canvas.height);
+		this.tvg.update();
+
+		var buffer = this.tvg.render();
+		var clampedBuffer = Uint8ClampedArray.from(buffer);
+		if (clampedBuffer.length == 0) return;
+		this.imageData = new ImageData(clampedBuffer, this.canvas.width, this.canvas.height);
+
+		this.flush();
+	}
+
+	update() {
+		if (!this.playing) return false;
+
+		this.curFrame = Math.round(((Date.now() / 1000) - this.beginTime) / this.tvg.duration() * this.totalFrame);
+
+		//finished
+		if (this.curFrame >= this.totalFrame) {
+			if (this.repeat) this.play();
+			else this.playing = false;
+			return false;
+		}
+		return this.tvg.frame(this.curFrame);
+	}
+
+	stop() {
+		player.playing = false;
+		this.curFrame = 0;
+		this.tvg.frame(0);
+	}
+
+	frame(curFrame) {
+		this.pause();
+		this.curFrame = curFrame;
+		this.tvg.frame(this.curFrame);
+	}
+
+	pause() {
+		player.playing = false;
+	}
+
+	play() {
+		this.totalFrame = this.tvg.totalFrame();
+		if (this.totalFrame === 0) return;
+		this.beginTime = (Date.now() / 1000);
+		this.playing = true;
+		window.requestAnimationFrame(animLoop);
+	}
+
+	loadData(data, filename) {
+	    consoleLog("Loading file " + filename, ConsoleLogTypes.Inner);
+	    var ext = filename.split('.').pop();
+	    if (this.tvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height)) {
+			this.filename = filename;
+			this.render();
+			this.play();
+			refreshZoomValue();
+		} else {
+			alert("Unable to load an image (" + filename + "). Error: " + this.tvg.error());
+		}
 	}
 
 	loadFile(file) {
 		let read = new FileReader();
 		read.readAsArrayBuffer(file);
 		read.onloadend = _ => {
-			if (!this.load(read.result, file.name) || !this.render(true)) {
-				alert("Couldn't load an image (" + file.name + "). Error message: " + this.thorvg.getError());
-				return;
-			}
-
-			this.filename = file.name;
+			this.loadData(read.result, file.name);
 			this.createTabs();
 			showImageCanvas();
 			enableZoomContainer();
+			enableProgressContainer();
 		}
 	}
 
@@ -92,39 +187,35 @@ class Player {
 		request.responseType = 'arraybuffer';
 		request.onloadend = _ => {
 			if (request.status !== 200) {
-				alert("Couldn't load an image from url " + url);
+				alert("Unable to load an image from url " + url);
 				return;
 			}
 			let name = url.split('/').pop();
-			if (!this.load(request.response, name) || !this.render(true)) {
-				alert("Couldn't load an image (" + name + "). Error message: " + this.thorvg.getError());
-				return;
-			}
-
-			this.filename = name;
+			this.loadData(request.response, name);
 			this.createTabs();
 			showImageCanvas();
 			enableZoomContainer();
 			deletePopup();
 		};
-		request.send();
 	}
 
 	createTabs() {
 		//layers tab
-		var layersMem = this.thorvg.layers();
-		var layers = document.getElementById("layers");
-		layers.textContent = '';
-		var parent = layers;
+		var tvgNodes = this.tvg.layers();
+		var sceneGraph = document.getElementById("scene-graph");
+		sceneGraph.textContent = '';
+		var parent = sceneGraph;
 		var parentDepth = 1;
-		for (let i = 0; i < layersMem.length; i += 5) {
-			let id = layersMem[i];
-			let depth = layersMem[i + 1];
-			let type = layersMem[i + 2];
-			let compositeMethod = layersMem[i + 3];
-			let opacity = layersMem[i + 4];
+
+		for (let i = 0; i < tvgNodes.length; i += 5) {
+			let id = tvgNodes[i];
+			let depth = tvgNodes[i + 1];
+			let type = tvgNodes[i + 2];
+			let opacity = tvgNodes[i + 3];
+			let compositeMethod = tvgNodes[i + 4];
+
 			if (depth > parentDepth) {
-				var block = layerBlockCreate(depth);
+				var block = createLayerBlock(depth);
 				parent = parent.appendChild(block);
 				parentDepth = depth;
 			} else if (depth < parentDepth) {
@@ -133,43 +224,40 @@ class Player {
 				}
 				parentDepth = depth;
 			}
-			parent.appendChild(layerCreate(id, depth, type, compositeMethod, opacity));
+			parent.appendChild(createSceneGraph(id, depth, type, compositeMethod, opacity));
 		}
 
-		//preferences tab
-		propertiesTabCreate(layers.getElementsByClassName('layer')[0]);
-
 		//file tab
-		var originalSize = Float32Array.from(this.thorvg.originalSize());
-		var originalSizeText = ((originalSize[0] % 1 === 0) && (originalSize[1] % 1 === 0)) ?
-			originalSize[0].toFixed(0) + " x " + originalSize[1].toFixed(0) :
-			originalSize[0].toFixed(2) + " x " + originalSize[1].toFixed(2);
+		var size = Float32Array.from(this.tvg.size());
+		var sizeText = ((size[0] % 1 === 0) && (size[1] % 1 === 0)) ?
+			size[0].toFixed(0) + " x " + size[1].toFixed(0) :
+			size[0].toFixed(2) + " x " + size[1].toFixed(2);
 
 		var file = document.getElementById("file");
 		file.textContent = '';
-		file.appendChild(headerCreate("Details"));
-		file.appendChild(titledLineCreate("Filename", this.filename));
-		file.appendChild(titledLineCreate("Canvas size", originalSizeText));
-		file.appendChild(headerCreate("Export"));
-		var lineExportCompressedTvg = propertiesLineCreate("Export .tvg file (compression)");
-		lineExportCompressedTvg.addEventListener("click", () => {player.saveTvg(true)}, false);
+		file.appendChild(createHeader("Details"));
+		file.appendChild(createTitleLine("Filename", this.filename));
+		file.appendChild(createTitleLine("Resolution", sizeText));
+		file.appendChild(createHeader("Export"));
+		var lineExportCompressedTvg = createPropertyLine("Export .tvg file (compression)");
+		lineExportCompressedTvg.addEventListener("click", () => {player.save(true)}, false);
 		file.appendChild(lineExportCompressedTvg);
-		var lineExportNotCompressedTvg = propertiesLineCreate("Export .tvg file (no compression)");
-		lineExportNotCompressedTvg.addEventListener("click", () => {player.saveTvg(false)}, false);
+		var lineExportNotCompressedTvg = createPropertyLine("Export .tvg file (no compression)");
+		lineExportNotCompressedTvg.addEventListener("click", () => {player.save(false)}, false);
 		file.appendChild(lineExportNotCompressedTvg);
-		var lineExportPng = propertiesLineCreate("Export .png file");
+		var lineExportPng = createPropertyLine("Export .png file");
 		lineExportPng.addEventListener("click", exportCanvasToPng, false);
 		file.appendChild(lineExportPng);
 
-		//switch to layers tab
-		showLayers();
+		//switch to file list in default.
+		onShowFilesList();
 	}
 
-	saveTvg(compress) {
-		if (this.thorvg.saveTvg(compress)) {
-			let data = FS.readFile('file.tvg');
+	save(compress) {
+		if (this.tvg.save(compress)) {
+			let data = FS.readFile('output.tvg');
 			if (data.length < 33) {
-				alert("Couldn't save canvas. Invalid size of the generated file.");
+				alert("Unable to save the TVG data. The generated file size is invalid.");
 				return;
 			}
 
@@ -182,36 +270,34 @@ class Player {
 			link.click();
 			document.body.removeChild(link);
 		} else {
-			let message = "Couldn't save canvas. Error message: " + this.thorvg.getError();
-			consoleLog(message, consoleLogTypes.Error);
+			let message = "Unable to save the TVG data. Error: " + this.tvg.error();
+			consoleLog(message, ConsoleLogTypes.Error);
 			alert(message);
 		}
 	}
 
-	highlightLayer(paintId) {
-		var bounds = Float32Array.from(this.thorvg.bounds(paintId));
-		if (bounds.length != 4) return;
-
-		var context = this.canvas.getContext('2d');
-		context.putImageData(this.imageData, 0, 0);
-		context.fillStyle = "#5a8be466";
-		context.fillRect(bounds[0], bounds[1], bounds[2], bounds[3]);
+	highlight(id) {
+		this.highlighted = true;
+		this.geomHighlight= Float32Array.from(this.tvg.geometry(id));
+		//don't need to flush because the animation do refresh.
+		if (!this.playing) this.flush();
 	}
 
-	setPaintOpacity(paintId, opacity) {
-		this.thorvg.setOpacity(paintId, opacity);
-		this.render(true);
+	unhighlight() {
+		this.highlighted = false;
+		//don't need to flush because the animation do refresh.
+		if (!this.playing) this.flush();
 	}
 
-	rerender() {
-		var context = this.canvas.getContext('2d');
-		context.putImageData(this.imageData, 0, 0);
+	setOpacity(id, opacity) {
+		this.tvg.opacity(id, opacity);
+		this.render();
 	}
 
 	constructor() {
-		this.thorvg = new Module.ThorvgWasm();
+		this.tvg = new Module.TvgWasm();
 		this.canvas = document.getElementById("image-canvas");
-		consoleLog("Thorvg module loaded correctly", consoleLogTypes.Inner);
+		consoleLog("ThorVG module loaded correctly", ConsoleLogTypes.Inner);
 	}
 }
 
@@ -230,44 +316,53 @@ function initialize() {
 		evt.target.value = '';
 	}, false);
 
+	document.getElementById("nav-toggle-aside").addEventListener("click", onToggleAside, false);
+	document.getElementById("nav-progress").addEventListener("click", onShowProgress, false);
+	document.getElementById("nav-scene-graph").addEventListener("click", onShowSceneGraph, false);
+	document.getElementById("nav-file").addEventListener("click", onShowFile, false);
+	document.getElementById("nav-files-list").addEventListener("click", onShowFilesList, false);
+	document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
+	document.getElementById("nav-console").addEventListener("click", onConsoleWindow, false);
+
+	document.getElementById("console-bottom-scroll").addEventListener("click", onConsoleBottom, false);
+
+	document.getElementById("zoom-slider").addEventListener("input", onZoomSlider, false);
+	document.getElementById("zoom-value").addEventListener("keydown", onZoomValue, false);
+
+	document.getElementById("progress-slider").addEventListener("input", onProgressSlider, false);
+	document.getElementById("progress-play").addEventListener("click", onProgressPlay, false);
+	document.getElementById("progress-pause").addEventListener("click", onProgressPause, false);
+	document.getElementById("progress-stop").addEventListener("click", onProgressStop, false);
+
 	document.getElementById("add-file-local").addEventListener("click", openFileBrowse, false);
-	document.getElementById("add-file-url").addEventListener("click", buildAddByURLPopup, false);
-
-	document.getElementById("nav-toggle-aside").addEventListener("click", toggleAside, false);
-	document.getElementById("nav-layers").addEventListener("click", showLayers, false);
-	document.getElementById("nav-properties").addEventListener("click", showProperties, false);
-	document.getElementById("nav-file").addEventListener("click", showFile, false);
-	document.getElementById("nav-files-list").addEventListener("click", showFilesList, false);
-	document.getElementById("nav-dark-mode").addEventListener("change", darkModeToggle, false);
-	document.getElementById("nav-console").addEventListener("click", consoleWindowToggle, false);
-
-	document.getElementById("console-bottom-scroll").addEventListener("click", consoleScrollBottom, false);
-
-	document.getElementById("zoom-slider").addEventListener("input", onZoomSliderSlide, false);
-	document.getElementById("zoom-value").addEventListener("keydown", onZoomValueKeyDown, false);
+	document.getElementById("add-file-url").addEventListener("click", onAddFileUrl, false);
 }
 
-//file upload
 function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
 function allowedFileExtension(filename) {
-	var ext = filename.split('.').pop();
-	return (ext === "tvg") || (ext === "svg");
+	player.filetype = filename.split('.').pop();
+	return (player.filetype === "tvg") || (player.filetype === "svg") || (player.filetype === "json")
 }
+
 function fileDropHighlight(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	event.dataTransfer.dropEffect = 'copy';
 	document.getElementById('image-area').classList.add("highlight");
 }
+
 function fileDropUnhighlight(event) {
 	event.preventDefault();
 	event.stopPropagation();
 	document.getElementById('image-area').classList.remove("highlight");
 }
+
 function fileDropOrBrowseHandle(files) {
+	if (!player) return;
+
 	let supportedFiles = false;
 	for (let i = 0, file; file = files[i]; ++i) {
 		if (!allowedFileExtension(file.name)) continue;
@@ -279,44 +374,35 @@ function fileDropOrBrowseHandle(files) {
 		return false;
 	}
 
-	loadFileFromList(filesList[filesList.length - 1]);
+	player.loadFile(filesList[filesList.length - 1]);
 	createFilesListTab();
 	return false;
 }
 
 function createFilesListTab() {
+	if (!player) return;
+
 	var container = document.getElementById("files-list").children[0];
 	container.textContent = '';
-	container.appendChild(headerCreate("List of files"));
+	container.appendChild(createHeader("List of files"));
 	for (let i = 0; i < filesList.length; ++i) {
 		let file = filesList[i];
-		var lineFile = filesListLineCreate(file);
+		var lineFile = createFilesListLine(file);
 		lineFile.addEventListener("dblclick", (event)=>{
-			for (var el = event.target; !el.classList.contains('line'); el = el.parentNode)
+			for (var el = event.target; !el.classList.contains('line'); el = el.parentNode) {
 				if (el.tagName === "A") return;
-			loadFileFromList(file);
+			}
+			player.loadFile(file);
 		}, false);
 		container.appendChild(lineFile);
 	}
 }
 
-function loadFileFromList(file) {
-	if (!player) {
-		alert("Webassembly module is not ready yet. Please try again.");
-		return;
-	}
-	player.loadFile(file);
-}
-
-//aside and nav
-function toggleAside() {
-	var aside = document.getElementsByTagName("aside")[0];
-	aside.classList.toggle("hidden");
-}
 function showAside() {
 	var aside = document.getElementsByTagName("aside")[0];
 	aside.classList.remove("hidden");
 }
+
 function showPage(name) {
 	showAside();
 	var aside = document.getElementsByTagName("aside")[0];
@@ -330,29 +416,6 @@ function showPage(name) {
 		if (child.tagName === "A")
 			child.classList.toggle("active", child.id === "nav-" + name);
 	}
-}
-
-function showLayers() {
-	showPage("layers");
-}
-function showProperties() {
-	showPage("properties");
-}
-function showFile() {
-	showPage("file");
-}
-function showFilesList() {
-	showPage("files-list");
-}
-function darkModeToggle(event) {
-	document.body.classList.toggle("dark-mode", event.target.checked);
-}
-function consoleWindowToggle(event) {
-	document.getElementById("console-area").classList.toggle("hidden");
-}
-function consoleScrollBottom(event) {
-	var consoleWindow = document.getElementById("console-area");
-	consoleWindow.scrollTop = consoleWindow.scrollHeight;
 }
 
 //main image section
@@ -371,24 +434,70 @@ function enableZoomContainer(enable = true) {
 	value.contentEditable = enable;
 }
 
-function onZoomSliderSlide(event) {
-	if (!player) return;
-	var value = event.target.value;
+//progress slider
+function enableProgressContainer(enable = true) {
+	var slider = document.getElementById("progress-slider");
+	slider.disabled = !enable;
+	slider.value = 0;
 
-	var size = 512 * (value / 100 + 0.25);
-	player.canvas.width = size;
-	player.canvas.height = size;
-	player.render(false);
+	var value = document.getElementById("progress-value");
+	value.innerHTML = 0 + " / " + player.totalFrame;
 }
 
-function onZoomValueKeyDown(event) {
+function onToggleAside() {
+	var aside = document.getElementsByTagName("aside")[0];
+	aside.classList.toggle("hidden");
+}
+
+function onShowProgress() {
+	showPage("progress");
+}
+
+function onShowSceneGraph() {
+	showPage("scene-graph");
+}
+
+function onShowFile() {
+	showPage("file");
+}
+
+function onShowFilesList() {
+	showPage("files-list");
+}
+
+function onDarkMode(event) {
+	document.body.classList.toggle("dark-mode", event.target.checked);
+}
+
+function onConsoleWindow(event) {
+	document.getElementById("console-area").classList.toggle("hidden");
+}
+
+function onConsoleBottom(event) {
+	var consoleWindow = document.getElementById("console-area");
+	consoleWindow.scrollTop = consoleWindow.scrollHeight;
+}
+
+function onZoomSlider(event) {
+	var value = event.target.value;
+	var size = 512 * (value / 100 + 0.25);
+
+	player.canvas.width = size;
+	player.canvas.height = size;
+	player.render();
+
+	refreshZoomValue();
+}
+
+function onZoomValue(event) {
 	if (event.code === 'Enter') {
 		var value = event.srcElement.innerHTML;
 		var matched = value.match(/^(\d{1,5})\s*x\s*(\d{1,5})$/);
 		if (matched) {
 			player.canvas.width = matched[1];
 			player.canvas.height = matched[2];
-			player.render(true);
+			player.render();
+			refreshZoomValue();
 		} else {
 			event.srcElement.classList.add("incorrect");
 		}
@@ -396,27 +505,69 @@ function onZoomValueKeyDown(event) {
 	}
 }
 
+function onProgressSlider(event) {
+	player.frame((event.target.value / 100) * player.totalFrame);
+	player.render();
+	refreshProgressValue();
+}
+
+function onProgressPlay() {
+	player.play();
+}
+
+function onProgressPause() {
+	player.pause();
+}
+
+function onProgressStop() {
+	player.stop();
+	player.render();
+
+	//reset progress slider
+	var slider = document.getElementById("progress-slider");
+	slider.value = 0;
+
+	var value = document.getElementById("progress-value");
+	value.innerHTML = 0 + " / " + player.totalFrame;
+}
+
+function onAddFileUrl() {
+	var popup = document.createElement("div");
+	popup.innerHTML = '<div><header>Add file by URL</header><div class="input-group"><span>https://</span><input type="text" id="url-field" placeholder="raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/tiger.svg" /></div><div class="posttext"><a href="https://github.com/thorvg/thorvg.viewer" target="_blank">Thorvg Viewer</a> can load graphics from an outside source. To load a resource at startup, enter its link through the url parameter s (?s=[link]). Such url can be easily shared online. Live example: <a href="https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/tiger.svg" target="_blank" id="url-example">https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/tiger.svg</a></div><footer><a class="button" id="popup-cancel">Cancel</a><a class="button" id="popup-ok">Add</a></footer></div>';
+	popup.setAttribute('class', 'popup');
+	document.body.appendChild(popup);
+
+	requestAnimationFrame(() => {
+		popup.children[0].setAttribute('class', 'faded');
+	});
+
+	document.getElementById("url-field").addEventListener("input", (evt)=>{
+		var example = document.getElementById("url-example");
+		var exampleUrl = "https://thorvg.github.io/thorvg.viewer/?s=" + encodeURIComponent(evt.target.value);
+		example.href = exampleUrl;
+		example.innerHTML = exampleUrl;
+	}, false);
+
+	document.getElementById("popup-cancel").addEventListener("click", deletePopup, false);
+	document.getElementById("popup-ok").addEventListener("click", addByUrl, false);
+}
 
 function loadFromWindowURL() {
 	const urlParams = new URLSearchParams(window.location.search);
 	const imageUrl = urlParams.get('s');
 	if (!imageUrl) return;
 	if (!allowedFileExtension(imageUrl)) {
-		alert("Applied a file of unsupported format.");
+		alert("Applied a file in an unsupported format.");
 		return;
 	}
-
-	if (!player) return false;
 	player.loadUrl(imageUrl);
 }
 
-
 const Types = { Shape : 1, Scene : 2, Picture : 3 };
-const CompositeMethod = { None : 0, ClipPath : 1, AlphaMask : 2, InvAlphaMask : 3 };
-
+const CompositeMethod = { None : 0, ClipPath : 1, AlphaMask : 2, InvAlphaMask : 3, LumaMask : 4, InvLumaMask : 5, AddMask : 6, SubtractMask : 7, IntersectMask : 8, DifferenceMask : 9 };
 const TypesIcons = [ "", "fa-files-o", "fa-folder", "fa-picture-o" ];
 const TypesNames = [ "", "Shape", "Scene", "Picture" ];
-const CompositeMethodNames = [ "None", "ClipPath", "AlphaMask", "InvAlphaMask" ];
+const CompositeMethodNames = [ "None", "ClipPath", "AlphaMask", "InverseAlphaMask", "LumaMask", "InverseLumaMask", "AddMask", "SubtractMask", "IntersectMask", "DifferenceMask" ];
 
 function toggleSceneChilds() {
 	var icon = event.currentTarget.getElementsByTagName("i")[0];
@@ -429,96 +580,67 @@ function toggleSceneChilds() {
 
 function togglePaintVisibility() {
 	for (var el = this.parentElement; el && !el.getAttribute('tvg-id'); el = el.parentElement);
-	var tvgId = el.getAttribute('tvg-id');
+	var id = el.getAttribute('tvg-id');
 
 	var icon = event.currentTarget.getElementsByTagName("i")[0];
 	var visible = !icon.classList.contains("fa-square-o");
 	var defaultOpacity = 255;
 
-	var layers = document.getElementById("layers").getElementsByTagName("div");
-	for (var i = 0; i < layers.length; i++) {
-		if (layers[i].getAttribute('tvg-id') === tvgId) {
-			var icon = layers[i].getElementsByClassName("visibility")[0].getElementsByTagName("i")[0];
+	var nodes = document.getElementById("scene-graph").getElementsByTagName("div");
+	for (var i = 0; i < nodes.length; i++) {
+		if (nodes[i].getAttribute('tvg-id') === id) {
+			var icon = nodes[i].getElementsByClassName("visibility")[0].getElementsByTagName("i")[0];
 			icon.classList.toggle("fa-square-o", visible);
 			icon.classList.toggle("fa-minus-square-o", !visible);
-			layers[i].setAttribute('tvg-visible', visible);
-			defaultOpacity = parseInt(layers[i].getAttribute('tvg-opacity'));
+			nodes[i].setAttribute('tvg-visible', visible);
+			defaultOpacity = parseInt(nodes[i].getAttribute('tvg-opacity'));
+			consoleLog("id = " + parseInt(id) + "opacity = " + (visible ? defaultOpacity : 0) + "visible = " + visible);
 			break;
 		}
 	}
-
-	var properties = document.getElementById("properties");
-	if (properties.getAttribute('tvg-id') === tvgId) {
-		var icon = properties.getElementsByClassName("visibility")[0].getElementsByTagName("i")[0];
-		icon.classList.toggle("fa-square-o", visible);
-		icon.classList.toggle("fa-minus-square-o", !visible);
-	}
-
-	player.setPaintOpacity(parseInt(tvgId), visible ? defaultOpacity : 0);
+	player.setOpacity(parseInt(id), visible ? defaultOpacity : 0);
 }
 
-function showLayerProperties(event) {
-	var el = event.target;
-	for (; !el.classList.contains('layer'); el = el.parentNode) {
-		if (el.tagName === "A") return;
-	}
-	propertiesTabCreate(el);
-	showProperties();
-}
-
-function propertiesTabCreate(layer) {
-	var properties = document.getElementById("properties");
-	properties.textContent = '';
-	properties.setAttribute('tvg-id', layer.getAttribute('tvg-id'));
-	var type = layer.getAttribute('tvg-type') || 0;
-	var compositeMethod = layer.getAttribute('tvg-comp') || 0;
-	var visible = layer.getAttribute('tvg-visible') || true;
-	properties.appendChild(propertiesLayerCreate(type, compositeMethod, visible));
-	var lineShowOnLayers = propertiesLineCreate("Show on layers list");
-	lineShowOnLayers.addEventListener("click", showLayers, false); // TODO
-	properties.appendChild(lineShowOnLayers);
-}
-
-function layerBlockCreate(depth) {
+function createLayerBlock(depth) {
 	var block = document.createElement("div");
 	block.setAttribute('class', 'block hidden');
 	block.setAttribute('tvg-depth', depth);
 	return block;
 }
 
-function layerCreate(id, depth, type, compositeMethod, opacity) {
-	var layer = document.createElement("div");
-	layer.setAttribute('class', 'layer');
-	layer.setAttribute('tvg-id', id);
-	layer.setAttribute('tvg-type', type);
-	layer.setAttribute('tvg-comp', compositeMethod);
-	layer.setAttribute('tvg-opacity', opacity);
-	layer.style.paddingLeft = Math.min(48 + 16 * depth, 224) + "px";
+function createSceneGraph(id, depth, type, compositeMethod, opacity) {
+	var node = document.createElement("div");
+	node.setAttribute('class', 'layer');
+	node.setAttribute('tvg-id', id);
+	node.setAttribute('tvg-type', type);
+	node.setAttribute('tvg-opacity', opacity);
+	node.setAttribute('tvg-comp', compositeMethod);
+	node.style.paddingLeft = Math.min(48 + 16 * depth, 224) + "px";
 
 	if (type == Types.Scene) {
 		var caret = document.createElement("a");
 		caret.setAttribute('class', 'caret');
 		caret.innerHTML = '<i class="fa fa-caret-right"></i>';
 		caret.addEventListener("click", toggleSceneChilds, false);
-		layer.appendChild(caret);
+		node.appendChild(caret);
 	}
 
 	var icon = document.createElement("i");
 	icon.setAttribute('class', 'icon fa ' + TypesIcons[type]);
-	layer.appendChild(icon);
+	node.appendChild(icon);
 
 	var name = document.createElement("span");
 	name.innerHTML = TypesNames[type];
-	layer.appendChild(name);
+	node.appendChild(name);
 
 	var visibility = document.createElement("a");
 	visibility.setAttribute('class', 'visibility');
 	visibility.innerHTML = '<i class="fa fa-square-o"></i>';
 	visibility.addEventListener("click", togglePaintVisibility, false);
-	layer.appendChild(visibility);
+	node.appendChild(visibility);
 
 	if (compositeMethod != CompositeMethod.None) {
-		layer.classList.add("composite");
+		node.classList.add("composite");
 		name.innerHTML += " <small>(" + CompositeMethodNames[compositeMethod] + ")</small>";
 	}
 
@@ -526,46 +648,23 @@ function layerCreate(id, depth, type, compositeMethod, opacity) {
 		var depthSpan = document.createElement("span");
 		depthSpan.setAttribute('class', 'depthSpan');
 		depthSpan.innerHTML = depth;
-		layer.appendChild(depthSpan);
+		node.appendChild(depthSpan);
 	}
 
-	layer.addEventListener("mouseenter", highlightLayer, false);
-	layer.addEventListener("mouseleave", unhighlightLayer, false);
-	layer.addEventListener("dblclick", showLayerProperties, false);
+	node.addEventListener("mouseenter", highlight, false);
+	node.addEventListener("mouseleave", unhighlight, false);
 
-	return layer;
+	return node;
 }
 
-
-function propertiesLayerCreate(type, compositeMethod, visible) {
-	var layer = document.createElement("div");
-	layer.setAttribute('class', 'layer');
-
-	var icon = document.createElement("i");
-	icon.setAttribute('class', 'icon fa ' + TypesIcons[type]);
-	layer.appendChild(icon);
-
-	var name = document.createElement("span");
-	name.innerHTML = TypesNames[type];
-	layer.appendChild(name);
-
-	var visibility = document.createElement("a");
-	visibility.setAttribute('class', 'visibility');
-	visibility.innerHTML = '<i class="fa ' + ((visible===true)?'fa-square-o':'fa-minus-square-o') + '"></i>';
-	visibility.addEventListener("click", togglePaintVisibility, false);
-	layer.appendChild(visibility);
-
-	return layer;
-}
-
-function propertiesLineCreate(text) {
+function createPropertyLine(text) {
 	var line = document.createElement("a");
 	line.setAttribute('class', 'line');
 	line.innerHTML = text;
 	return line;
 }
 
-function titledLineCreate(title, text) {
+function createTitleLine(title, text) {
 	var titleLine = document.createElement("span");
 	titleLine.setAttribute('class', 'line-title');
 	titleLine.innerHTML = title;
@@ -578,7 +677,7 @@ function titledLineCreate(title, text) {
 	return line;
 }
 
-function headerCreate(text) {
+function createHeader(text) {
 	var header = document.createElement("div");
 	header.setAttribute('class', 'header');
 	header.innerHTML = text;
@@ -591,7 +690,8 @@ function bytesToSize(bytes) {
 	var i = (bytes > 1024) ? ((bytes > 1048576) ? 2 : 1) : 0;
 	return Math.round(bytes / Math.pow(1024, i)) + ' ' + sizes[i];
 }
-function filesListLineCreate(file) {
+
+function createFilesListLine(file) {
 	var line = document.createElement("div");
 	line.setAttribute('class', 'line');
 
@@ -623,6 +723,7 @@ function changeExtension(filename, extension) {
 	s.push(extension);
 	return s.join('.');
 }
+
 function exportCanvasToPng() {
 	player.canvas.toBlob(function(blob){
 		var link = document.createElement("a");
@@ -634,19 +735,20 @@ function exportCanvasToPng() {
 	}, 'image/png');
 }
 
-function highlightLayer(event) {
-	var paintId = parseInt(this.getAttribute('tvg-id'));
-	player.highlightLayer(paintId);
-}
-function unhighlightLayer(event) {
-	player.rerender(); // TODO; dont rerender if will do highlightLayer
+function highlight(event) {
+	var id = parseInt(this.getAttribute('tvg-id'));
+	player.highlight(id);
 }
 
+function unhighlight(event) {
+	player.unhighlight();
+}
 
 function deletePopup() {
 	var popup = document.getElementsByClassName("popup")[0];
 	if (popup) popup.parentNode.removeChild(popup);
 }
+
 function addByUrl() {
 	var url = document.getElementById("url-field").value;
 
@@ -654,28 +756,20 @@ function addByUrl() {
 		alert("Applied a file of unsupported format.");
 		return;
 	}
-
-	if (!player) return false;
 	player.loadUrl(url);
 }
-function buildAddByURLPopup() {
-	var popup = document.createElement("div");
-	popup.innerHTML = '<div><header>Add file by URL</header><div class="input-group"><span>https://</span><input type="text" id="url-field" placeholder="raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg" /></div><div class="posttext"><a href="https://github.com/Samsung/thorvg.viewer" target="_blank">Thorvg Viewer</a> can load graphics from an outside source. To load a resource at startup, enter its link through the url parameter s (?s=[link]). Such url can be easily shared online. Live example: <a href="https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg" target="_blank" id="url-example">https://samsung.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/Samsung/thorvg/master/src/examples/images/tiger.svg</a></div><footer><a class="button" id="popup-cancel">Cancel</a><a class="button" id="popup-ok">Add</a></footer></div>';
-	popup.setAttribute('class', 'popup');
-	document.body.appendChild(popup);
 
-	requestAnimationFrame(() => {
-		popup.children[0].setAttribute('class', 'faded');
-	});
+function refreshProgressValue() {
+	var slider = document.getElementById("progress-slider");
+	slider.value = (player.curFrame / player.totalFrame) * 100;
+	var value = document.getElementById("progress-value");
+	value.innerHTML = Math.round(player.curFrame) + " / " + player.totalFrame;
 
-	document.getElementById("url-field").addEventListener("input", (evt)=>{
-		var example = document.getElementById("url-example");
-		var exampleUrl = "https://samsung.github.io/thorvg.viewer/?s=" + encodeURIComponent(evt.target.value);
-		example.href = exampleUrl;
-		example.innerHTML = exampleUrl;
-	}, false);
-
-	document.getElementById("popup-cancel").addEventListener("click", deletePopup, false);
-	document.getElementById("popup-ok").addEventListener("click", addByUrl, false);
 }
-	
+
+function refreshZoomValue() {
+	var canvas = document.getElementById("image-canvas");
+	var value = document.getElementById("zoom-value");
+	value.innerHTML = canvas.width + " x " + canvas.height;
+	value.classList.remove("incorrect");
+}
