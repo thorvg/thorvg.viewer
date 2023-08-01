@@ -16,6 +16,6 @@ Click to use [ThorVG Viewer](https://thorvg.github.io/thorvg.viewer/) via github
 ### Loading image from outside source
 You can load a graphic from an outside source by entering its link through the url parameter `s` (`?s=[link]`). Such url can be easily shared online. Examples:
 
-https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/master/src/examples/images/tiger.svg
+https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/tiger.svg
 
-https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/master/src/examples/images/test.tvg
+https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/test.tvg
