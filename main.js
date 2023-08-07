@@ -125,9 +125,13 @@ class Player {
 
 		//finished
 		if (this.curFrame >= this.totalFrame) {
-			if (this.repeat) this.play();
-			else this.playing = false;
-			return false;
+			if (this.repeat) {
+				this.play();
+				return true;
+			} else {
+				this.playing = false;
+				return false;
+			}
 		}
 		return this.tvg.frame(this.curFrame);
 	}
@@ -152,8 +156,10 @@ class Player {
 		this.totalFrame = this.tvg.totalFrame();
 		if (this.totalFrame === 0) return;
 		this.beginTime = (Date.now() / 1000);
-		this.playing = true;
-		window.requestAnimationFrame(animLoop);
+		if (!this.playing) {
+			this.playing = true;
+			window.requestAnimationFrame(animLoop);
+		}
 	}
 
 	loadData(data, filename) {
