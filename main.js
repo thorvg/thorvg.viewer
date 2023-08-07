@@ -291,7 +291,7 @@ class Player {
 
 	setOpacity(id, opacity) {
 		this.tvg.opacity(id, opacity);
-		this.render();
+		if (!this.playing) this.render();
 	}
 
 	constructor() {
@@ -484,7 +484,7 @@ function onZoomSlider(event) {
 
 	player.canvas.width = size;
 	player.canvas.height = size;
-	player.render();
+	if (!player.playing) player.render();
 
 	refreshZoomValue();
 }
@@ -496,7 +496,7 @@ function onZoomValue(event) {
 		if (matched) {
 			player.canvas.width = matched[1];
 			player.canvas.height = matched[2];
-			player.render();
+			if (!player.playing) player.render();
 			refreshZoomValue();
 		} else {
 			event.srcElement.classList.add("incorrect");
