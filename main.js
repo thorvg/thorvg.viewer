@@ -163,9 +163,10 @@ class Player {
 	}
 
 	loadData(data, filename) {
-	    consoleLog("Loading file " + filename, ConsoleLogTypes.Inner);
-	    var ext = filename.split('.').pop();
-	    if (this.tvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height)) {
+		consoleLog("Loading file " + filename, ConsoleLogTypes.Inner);
+		var ext = filename.split('.').pop();
+		if (ext == "json") ext = "lottie";
+		if (this.tvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height)) {
 			this.filename = filename;
 			this.render();
 			this.play();
