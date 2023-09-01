@@ -108,14 +108,14 @@ class Player {
 
 	render() {
 		this.tvg.resize(this.canvas.width, this.canvas.height);
-		this.tvg.update();
+		if (this.tvg.update() === true) {
+			var buffer = this.tvg.render();
+			var clampedBuffer = Uint8ClampedArray.from(buffer);
+			if (clampedBuffer.length == 0) return;
+			this.imageData = new ImageData(clampedBuffer, this.canvas.width, this.canvas.height);
 
-		var buffer = this.tvg.render();
-		var clampedBuffer = Uint8ClampedArray.from(buffer);
-		if (clampedBuffer.length == 0) return;
-		this.imageData = new ImageData(clampedBuffer, this.canvas.width, this.canvas.height);
-
-		this.flush();
+			this.flush();
+		}
 	}
 
 	update() {
