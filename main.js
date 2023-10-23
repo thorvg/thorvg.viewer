@@ -121,7 +121,7 @@ class Player {
 	update() {
 		if (!this.playing) return false;
 
-		this.curFrame = Math.round(((Date.now() / 1000) - this.beginTime) / this.tvg.duration() * this.totalFrame);
+		this.curFrame = ((Date.now() / 1000) - this.beginTime) / this.tvg.duration() * this.totalFrame;
 
 		//finished
 		if (this.curFrame >= this.totalFrame) {
