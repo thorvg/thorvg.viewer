@@ -351,7 +351,7 @@ function openFileBrowse() {
 
 function allowedFileExtension(filename) {
 	player.filetype = filename.split('.').pop();
-	return (player.filetype === "tvg") || (player.filetype === "svg") || (player.filetype === "json")
+	return (player.filetype === "tvg") || (player.filetype === "svg") || (player.filetype === "json") || (player.filetype === "png") || (player.filetype === "jpg")
 }
 
 function fileDropHighlight(event) {
