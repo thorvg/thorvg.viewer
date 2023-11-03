@@ -673,3 +673,10 @@ section #console-area > span.console-type-warning {
 	92% { -webkit-transform: translateX(5px); }
 	0%, 100% { -webkit-transform: translateX(0); }
 }
+
+span.line-name {
+	margin-right: 28px;
+	overflow: hidden;
+	display: flex;
+	word-break: break-word;
+}
