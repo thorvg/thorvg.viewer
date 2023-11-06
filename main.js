@@ -207,33 +207,6 @@ class Player {
 	}
 
 	createTabs() {
-		//layers tab
-		var tvgNodes = this.tvg.layers();
-		var sceneGraph = document.getElementById("scene-graph");
-		sceneGraph.textContent = '';
-		var parent = sceneGraph;
-		var parentDepth = 1;
-
-		for (let i = 0; i < tvgNodes.length; i += 5) {
-			let id = tvgNodes[i];
-			let depth = tvgNodes[i + 1];
-			let type = tvgNodes[i + 2];
-			let opacity = tvgNodes[i + 3];
-			let compositeMethod = tvgNodes[i + 4];
-
-			if (depth > parentDepth) {
-				var block = createLayerBlock(depth);
-				parent = parent.appendChild(block);
-				parentDepth = depth;
-			} else if (depth < parentDepth) {
-				while (parent.getAttribute('tvg-depth') > depth) {
-					parent = parent.parentNode;
-				}
-				parentDepth = depth;
-			}
-			parent.appendChild(createSceneGraph(id, depth, type, compositeMethod, opacity));
-		}
-
 		//file tab
 		var size = Float32Array.from(this.tvg.size());
 		var sizeText = ((size[0] % 1 === 0) && (size[1] % 1 === 0)) ?
@@ -325,7 +298,6 @@ function initialize() {
 
 	document.getElementById("nav-toggle-aside").addEventListener("click", onToggleAside, false);
 	document.getElementById("nav-progress").addEventListener("click", onShowProgress, false);
-	document.getElementById("nav-scene-graph").addEventListener("click", onShowSceneGraph, false);
 	document.getElementById("nav-file").addEventListener("click", onShowFile, false);
 	document.getElementById("nav-files-list").addEventListener("click", onShowFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
@@ -460,10 +432,6 @@ function onShowProgress() {
 	showPage("progress");
 }
 
-function onShowSceneGraph() {
-	showPage("scene-graph");
-}
-
 function onShowFile() {
 	showPage("file");
 }
@@ -568,100 +536,6 @@ function loadFromWindowURL() {
 		return;
 	}
 	player.loadUrl(imageUrl);
-}
-
-const Types = { Shape : 1, Scene : 2, Picture : 3 };
-const CompositeMethod = { None : 0, ClipPath : 1, AlphaMask : 2, InvAlphaMask : 3, LumaMask : 4, InvLumaMask : 5, AddMask : 6, SubtractMask : 7, IntersectMask : 8, DifferenceMask : 9 };
-const TypesIcons = [ "", "fa-files-o", "fa-folder", "fa-picture-o" ];
-const TypesNames = [ "", "Shape", "Scene", "Picture" ];
-const CompositeMethodNames = [ "None", "ClipPath", "AlphaMask", "InverseAlphaMask", "LumaMask", "InverseLumaMask", "AddMask", "SubtractMask", "IntersectMask", "DifferenceMask" ];
-
-function toggleSceneChilds() {
-	var icon = event.currentTarget.getElementsByTagName("i")[0];
-	var block = event.currentTarget.parentElement.nextElementSibling;
-	if (!block || !block.classList.contains("block")) return;
-	var visible = block.classList.toggle("hidden");
-	icon.classList.toggle("fa-caret-right", visible);
-	icon.classList.toggle("fa-caret-down", !visible);
-}
-
-function togglePaintVisibility() {
-	for (var el = this.parentElement; el && !el.getAttribute('tvg-id'); el = el.parentElement);
-	var id = el.getAttribute('tvg-id');
-
-	var icon = event.currentTarget.getElementsByTagName("i")[0];
-	var visible = !icon.classList.contains("fa-square-o");
-	var defaultOpacity = 255;
-
-	var nodes = document.getElementById("scene-graph").getElementsByTagName("div");
-	for (var i = 0; i < nodes.length; i++) {
-		if (nodes[i].getAttribute('tvg-id') === id) {
-			var icon = nodes[i].getElementsByClassName("visibility")[0].getElementsByTagName("i")[0];
-			icon.classList.toggle("fa-square-o", visible);
-			icon.classList.toggle("fa-minus-square-o", !visible);
-			nodes[i].setAttribute('tvg-visible', visible);
-			defaultOpacity = parseInt(nodes[i].getAttribute('tvg-opacity'));
-			consoleLog("id = " + parseInt(id) + "opacity = " + (visible ? defaultOpacity : 0) + "visible = " + visible);
-			break;
-		}
-	}
-	player.setOpacity(parseInt(id), visible ? defaultOpacity : 0);
-}
-
-function createLayerBlock(depth) {
-	var block = document.createElement("div");
-	block.setAttribute('class', 'block hidden');
-	block.setAttribute('tvg-depth', depth);
-	return block;
-}
-
-function createSceneGraph(id, depth, type, compositeMethod, opacity) {
-	var node = document.createElement("div");
-	node.setAttribute('class', 'layer');
-	node.setAttribute('tvg-id', id);
-	node.setAttribute('tvg-type', type);
-	node.setAttribute('tvg-opacity', opacity);
-	node.setAttribute('tvg-comp', compositeMethod);
-	node.style.paddingLeft = Math.min(48 + 16 * depth, 224) + "px";
-
-	if (type == Types.Scene) {
-		var caret = document.createElement("a");
-		caret.setAttribute('class', 'caret');
-		caret.innerHTML = '<i class="fa fa-caret-right"></i>';
-		caret.addEventListener("click", toggleSceneChilds, false);
-		node.appendChild(caret);
-	}
-
-	var icon = document.createElement("i");
-	icon.setAttribute('class', 'icon fa ' + TypesIcons[type]);
-	node.appendChild(icon);
-
-	var name = document.createElement("span");
-	name.innerHTML = TypesNames[type];
-	node.appendChild(name);
-
-	var visibility = document.createElement("a");
-	visibility.setAttribute('class', 'visibility');
-	visibility.innerHTML = '<i class="fa fa-square-o"></i>';
-	visibility.addEventListener("click", togglePaintVisibility, false);
-	node.appendChild(visibility);
-
-	if (compositeMethod != CompositeMethod.None) {
-		node.classList.add("composite");
-		name.innerHTML += " <small>(" + CompositeMethodNames[compositeMethod] + ")</small>";
-	}
-
-	if (depth >= 11) {
-		var depthSpan = document.createElement("span");
-		depthSpan.setAttribute('class', 'depthSpan');
-		depthSpan.innerHTML = depth;
-		node.appendChild(depthSpan);
-	}
-
-	node.addEventListener("mouseenter", highlight, false);
-	node.addEventListener("mouseleave", unhighlight, false);
-
-	return node;
 }
 
 function createPropertyLine(text) {
