@@ -91,19 +91,12 @@ class Player {
 	totalFrame = 0;
 	repeat = true;
 	playing = false;
-	highlighted = false;
 
 	flush() {
 		var context = this.canvas.getContext('2d');
 
 		//draw the content image first
 		context.putImageData(this.imageData, 0, 0);
-
-		//draw the highlight image later
-		if (this.highlighted) {
-			context.fillStyle = "#5a8be466";
-			context.fillRect(this.geomHighlight[0], this.geomHighlight[1], this.geomHighlight[2], this.geomHighlight[3]);
-		}
 	}
 
 	render() {
@@ -256,24 +249,6 @@ class Player {
 		}
 	}
 
-	highlight(id) {
-		this.highlighted = true;
-		this.geomHighlight= Float32Array.from(this.tvg.geometry(id));
-		//don't need to flush because the animation do refresh.
-		if (!this.playing) this.flush();
-	}
-
-	unhighlight() {
-		this.highlighted = false;
-		//don't need to flush because the animation do refresh.
-		if (!this.playing) this.flush();
-	}
-
-	setOpacity(id, opacity) {
-		this.tvg.opacity(id, opacity);
-		if (!this.playing) this.render();
-	}
-
 	constructor() {
 		this.tvg = new Module.TvgWasm();
 		this.canvas = document.getElementById("image-canvas");
@@ -282,10 +257,6 @@ class Player {
 }
 
 function initialize() {
-	window.addEventListener('dragenter', fileDropHighlight, false);
-	window.addEventListener('dragleave', fileDropUnhighlight, false);
-	window.addEventListener('dragover', fileDropHighlight, false);
-	window.addEventListener('drop', fileDropUnhighlight, false);
 	window.addEventListener('drop', (evt)=>{
 		fileDropOrBrowseHandle(evt.dataTransfer.files);
 	}, false);
@@ -324,19 +295,6 @@ function openFileBrowse() {
 function allowedFileExtension(filename) {
 	player.filetype = filename.split('.').pop();
 	return (player.filetype === "tvg") || (player.filetype === "svg") || (player.filetype === "json") || (player.filetype === "png") || (player.filetype === "jpg")
-}
-
-function fileDropHighlight(event) {
-	event.preventDefault();
-	event.stopPropagation();
-	event.dataTransfer.dropEffect = 'copy';
-	document.getElementById('image-area').classList.add("highlight");
-}
-
-function fileDropUnhighlight(event) {
-	event.preventDefault();
-	event.stopPropagation();
-	document.getElementById('image-area').classList.remove("highlight");
 }
 
 function fileDropOrBrowseHandle(files) {
@@ -614,15 +572,6 @@ function exportCanvasToPng() {
 		link.click();
 		document.body.removeChild(link);
 	}, 'image/png');
-}
-
-function highlight(event) {
-	var id = parseInt(this.getAttribute('tvg-id'));
-	player.highlight(id);
-}
-
-function unhighlight(event) {
-	player.unhighlight();
 }
 
 function deletePopup() {
