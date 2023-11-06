@@ -283,6 +283,8 @@ class Player {
 }
 
 function initialize() {
+	window.addEventListener('dragover', fileDropHighlight, false);
+	window.addEventListener('drop', fileDropUnhighlight, false);
 	window.addEventListener('drop', (evt)=>{
 		fileDropOrBrowseHandle(evt.dataTransfer.files);
 	}, false);
@@ -321,6 +323,17 @@ function openFileBrowse() {
 function allowedFileExtension(filename) {
 	player.filetype = filename.split('.').pop();
 	return (player.filetype === "tvg") || (player.filetype === "svg") || (player.filetype === "json") || (player.filetype === "png") || (player.filetype === "jpg")
+}
+
+function fileDropHighlight(event) {
+	event.preventDefault();
+	event.stopPropagation();
+	event.dataTransfer.dropEffect = 'copy';
+}
+
+function fileDropUnhighlight(event) {
+	event.preventDefault();
+	event.stopPropagation();
 }
 
 function fileDropOrBrowseHandle(files) {
