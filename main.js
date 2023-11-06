@@ -85,12 +85,13 @@ function animLoop() {
 
 class Player {
 
-	filetype = "unknown";		//current file format: (tvg, svg, json)
+	filetype = "unknown";		//current file format: (tvg, svg, json, jpg, png)
 	curFrame = 0;
 	beginTime = 0;
 	totalFrame = 0;
 	repeat = true;
 	playing = false;
+	curRead = null;
 
 	flush() {
 		var context = this.canvas.getContext('2d');
@@ -170,10 +171,10 @@ class Player {
 	}
 
 	loadFile(file) {
-		let read = new FileReader();
-		read.readAsArrayBuffer(file);
-		read.onloadend = _ => {
-			this.loadData(read.result, file.name);
+		this.curRead = new FileReader();
+		this.curRead.readAsArrayBuffer(file);
+		this.curRead.onloadend = _ => {
+			this.loadData(this.curRead.result, file.name);
 			this.createTabs();
 			showImageCanvas();
 			enableZoomContainer();
@@ -212,23 +213,24 @@ class Player {
 		file.appendChild(createTitleLine("Filename", this.filename));
 		file.appendChild(createTitleLine("Resolution", sizeText));
 		file.appendChild(createHeader("Export"));
-		var lineExportCompressedTvg = createPropertyLine("Export .tvg file (compression)");
-		lineExportCompressedTvg.addEventListener("click", () => {player.save(true)}, false);
-		file.appendChild(lineExportCompressedTvg);
-		var lineExportNotCompressedTvg = createPropertyLine("Export .tvg file (no compression)");
-		lineExportNotCompressedTvg.addEventListener("click", () => {player.save(false)}, false);
-		file.appendChild(lineExportNotCompressedTvg);
+		var lineExportTvg = createPropertyLine("Export .tvg file");
+		lineExportTvg.addEventListener("click", () => {player.save2Tvg()}, false);
+		file.appendChild(lineExportTvg);
 		var lineExportPng = createPropertyLine("Export .png file");
 		lineExportPng.addEventListener("click", exportCanvasToPng, false);
 		file.appendChild(lineExportPng);
+		var lineExportGif = createPropertyLine("Export .gif file");
+		lineExportGif.addEventListener("click", () => {player.save2Gif()}, false);
+		file.appendChild(lineExportGif);
 
 		//switch to file list in default.
 		onShowFilesList();
 	}
 
-	save(compress) {
-		if (this.tvg.save(compress)) {
+	save2Tvg() {
+		if (this.tvg.save2Tvg()) {
 			let data = FS.readFile('output.tvg');
+			//33 is the header size
 			if (data.length < 33) {
 				alert("Unable to save the TVG data. The generated file size is invalid.");
 				return;
@@ -244,6 +246,30 @@ class Player {
 			document.body.removeChild(link);
 		} else {
 			let message = "Unable to save the TVG data. Error: " + this.tvg.error();
+			consoleLog(message, ConsoleLogTypes.Error);
+			alert(message);
+		}
+	}
+
+	save2Gif() {
+		if (this.tvg.save2Gif(this.curRead.result, "lottie", 600, 600, 30)) {
+			let data = FS.readFile('output.gif');
+			//6 is the header size
+			if (data.length < 6) {
+				alert("Unable to save the Gif data. The generated file size is invalid.");
+				return;
+			}
+
+			var blob = new Blob([data], {type: 'application/octet-stream'});
+
+			var link = document.createElement("a");
+			link.setAttribute('href', URL.createObjectURL(blob));
+			link.setAttribute('download', changeExtension(player.filename, "gif"));
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		} else {
+			let message = "Unable to save the Gif data. Error: " + this.tvg.error();
 			consoleLog(message, ConsoleLogTypes.Error);
 			alert(message);
 		}
