@@ -320,7 +320,7 @@ function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
-const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg'];
+const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg'];
 
 function allowedFileExtension(filename) {
 	player.filetype = filename.split('.').pop().toLowerCase();
