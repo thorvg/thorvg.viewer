@@ -320,9 +320,11 @@ function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
+const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg'];
+
 function allowedFileExtension(filename) {
 	player.filetype = filename.split('.').pop().toLowerCase();
-	return (player.filetype === "tvg") || (player.filetype === "svg") || (player.filetype === "json") || (player.filetype === "png") || (player.filetype === "jpg")
+	return allowedExtensionList.includes(player.filetype);
 }
 
 function fileDropHighlight(event) {
