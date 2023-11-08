@@ -158,7 +158,7 @@ class Player {
 
 	loadData(data, filename) {
 		consoleLog("Loading file " + filename, ConsoleLogTypes.Inner);
-		var ext = filename.split('.').pop();
+		var ext = filename.split('.').pop().toLowerCase();
 		if (ext == "json") ext = "lottie";
 		if (this.tvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height)) {
 			this.filename = filename;
@@ -321,7 +321,7 @@ function openFileBrowse() {
 }
 
 function allowedFileExtension(filename) {
-	player.filetype = filename.split('.').pop();
+	player.filetype = filename.split('.').pop().toLowerCase();
 	return (player.filetype === "tvg") || (player.filetype === "svg") || (player.filetype === "json") || (player.filetype === "png") || (player.filetype === "jpg")
 }
 
