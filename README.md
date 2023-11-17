@@ -4,7 +4,7 @@ ThorVG Viewer is a verification tool for the ThorVG Engine. It facilitates immed
 </br>
 </br>
 <p align="center">
-  <img width="700" height="auto" src="https://github.com/thorvg/thorvg.viewer/assets/3711518/6b49ec8f-b655-4048-a09b-ceb94c649541"/>
+  <img width="700" height="auto" src="https://github.com/thorvg/thorvg/assets/3711518/edadcc5e-3bbf-489d-a9a1-9570079c7d55"/>
 </p>
 </br>
 
