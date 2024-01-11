@@ -22,24 +22,8 @@
 
 var player;
 var filesList;
-
-//initialization
-(function () {
-	window.onload = initialize();
-
-	var script = document.createElement('script');
-	script.type = 'text/javascript';
-	script.src = 'thorvg-wasm.js';
-	document.head.appendChild(script);
-
-	script.onload = _ => {
-		Module.onRuntimeInitialized = _ => {
-			filesList = new Array();
-			player = new Player();
-			loadFromWindowURL();
-		};
-	};
-})();
+var filetype;
+var filename;
 
 //console output
 const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'console-type-error', Warning : 'console-type-warning' };
@@ -49,13 +33,79 @@ const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 	console.log = (...args) => {
 		if (args[0] && typeof args[0] === 'string') {
 			//slice at the log reset color: "\033[0m"
-			if (player.filetype === "svg" && args[0].indexOf("SVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
-			else if (player.filetype === "tvg" && args[0].indexOf("TVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
-			else if (player.filetype === "json" && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
+			if (filetype === "svg" && args[0].indexOf("SVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
+			else if (filetype === "tvg" && args[0].indexOf("TVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
+			else if (filetype === "json" && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 		}
 		//baseConsole(...args);
 	};
 })();
+
+//initialization
+window.onload = () => {
+	player = document.querySelector('lottie-player');
+	attachAllEventListeners();
+
+	initialize();
+	filesList = new Array();
+	loadFromWindowURL();
+
+  consoleLog("ThorVG module loaded correctly", ConsoleLogTypes.Inner);
+}
+
+function createTabs() {
+	//file tab
+	var size = player.size;
+	var sizeText = ((size[0] % 1 === 0) && (size[1] % 1 === 0)) ?
+		size[0].toFixed(0) + " x " + size[1].toFixed(0) :
+		size[0].toFixed(2) + " x " + size[1].toFixed(2);
+
+	var file = document.getElementById("file");
+	file.textContent = '';
+	file.appendChild(createHeader("Details"));
+	file.appendChild(createTitleLine("Filename", filename));
+	file.appendChild(createTitleLine("Resolution", sizeText));
+	file.appendChild(createHeader("Export"));
+	
+	var lineExportTvg = createPropertyLine("Export .tvg file");
+	lineExportTvg.addEventListener("click", async () => {
+		try {
+			await player.save('tvg');
+		} catch (err) {
+			let message = "Unable to save the TVG data.";
+			consoleLog(message, ConsoleLogTypes.Error);
+			alert(message);
+		}
+	}, false);
+	file.appendChild(lineExportTvg);
+
+	var lineExportPng = createPropertyLine("Export .png file");
+	lineExportPng.addEventListener("click", async () => {
+		try {
+			await player.save('png');
+		} catch (err) {
+			let message = "Unable to save the Png data.";
+			consoleLog(message, ConsoleLogTypes.Error);
+			alert(message);
+		}
+	}, false);
+	file.appendChild(lineExportPng);
+
+	var lineExportGif = createPropertyLine("Export .gif file");
+	lineExportGif.addEventListener("click", async () => {
+		try {
+			await player.save('gif');
+		} catch (err) {
+			let message = "Unable to save the Gif data.";
+			consoleLog(message, ConsoleLogTypes.Error);
+			alert(message);
+		}
+    }, false);
+	file.appendChild(lineExportGif);
+
+	//switch to file list in default.
+	onShowFilesList();
+}
 
 //console message
 function consoleLog(message, type = ConsoleLogTypes.None) {
@@ -73,214 +123,6 @@ function consoleLog(message, type = ConsoleLogTypes.None) {
 	//consoleWindow.scrollTop = consoleWindow.scrollHeight;
 }
 
-//for playing animations
-function animLoop() {
-	if (!player) return;
-	if (player.update()) {
-		player.render();
-		refreshProgressValue()
-		window.requestAnimationFrame(animLoop);
-	}
-}
-
-class Player {
-
-	filetype = "unknown";		//current file format: (tvg, svg, json, jpg, png)
-	curFrame = 0;
-	beginTime = 0;
-	totalFrame = 0;
-	repeat = true;
-	playing = false;
-	curRead = null;
-
-	flush() {
-		var context = this.canvas.getContext('2d');
-
-		//draw the content image first
-		context.putImageData(this.imageData, 0, 0);
-	}
-
-	render() {
-		this.tvg.resize(this.canvas.width, this.canvas.height);
-		if (this.tvg.update() === true) {
-			var buffer = this.tvg.render();
-			var clampedBuffer = Uint8ClampedArray.from(buffer);
-			if (clampedBuffer.length == 0) return;
-			this.imageData = new ImageData(clampedBuffer, this.canvas.width, this.canvas.height);
-
-			this.flush();
-		}
-	}
-
-	update() {
-		if (!this.playing) return false;
-
-		this.curFrame = ((Date.now() / 1000) - this.beginTime) / this.tvg.duration() * this.totalFrame;
-
-		//finished
-		if (this.curFrame >= this.totalFrame) {
-			if (this.repeat) {
-				this.play();
-				return true;
-			} else {
-				this.playing = false;
-				return false;
-			}
-		}
-		return this.tvg.frame(this.curFrame);
-	}
-
-	stop() {
-		player.playing = false;
-		this.curFrame = 0;
-		this.tvg.frame(0);
-	}
-
-	frame(curFrame) {
-		this.pause();
-		this.curFrame = curFrame;
-		this.tvg.frame(this.curFrame);
-	}
-
-	pause() {
-		player.playing = false;
-	}
-
-	play() {
-		this.totalFrame = this.tvg.totalFrame();
-		if (this.totalFrame === 0) return;
-		this.beginTime = (Date.now() / 1000);
-		if (!this.playing) {
-			this.playing = true;
-			window.requestAnimationFrame(animLoop);
-		}
-	}
-
-	loadData(data, filename) {
-		consoleLog("Loading file " + filename, ConsoleLogTypes.Inner);
-		var ext = filename.split('.').pop().toLowerCase();
-		if (ext == "json") ext = "lottie";
-		if (this.tvg.load(new Int8Array(data), ext, this.canvas.width, this.canvas.height)) {
-			this.filename = filename;
-			this.render();
-			this.play();
-			refreshZoomValue();
-		} else {
-			alert("Unable to load an image (" + filename + "). Error: " + this.tvg.error());
-		}
-	}
-
-	loadFile(file) {
-		this.curRead = new FileReader();
-		this.curRead.readAsArrayBuffer(file);
-		this.curRead.onloadend = _ => {
-			this.loadData(this.curRead.result, file.name);
-			this.createTabs();
-			showImageCanvas();
-			enableZoomContainer();
-			enableProgressContainer();
-		}
-	}
-
-	loadUrl(url) {
-		let request = new XMLHttpRequest();
-		request.open('GET', url, true);
-		request.responseType = 'arraybuffer';
-		request.onloadend = _ => {
-			if (request.status !== 200) {
-				alert("Unable to load an image from url " + url);
-				return;
-			}
-			let name = url.split('/').pop();
-			this.loadData(request.response, name);
-			this.createTabs();
-			showImageCanvas();
-			enableZoomContainer();
-			deletePopup();
-		};
-	}
-
-	createTabs() {
-		//file tab
-		var size = Float32Array.from(this.tvg.size());
-		var sizeText = ((size[0] % 1 === 0) && (size[1] % 1 === 0)) ?
-			size[0].toFixed(0) + " x " + size[1].toFixed(0) :
-			size[0].toFixed(2) + " x " + size[1].toFixed(2);
-
-		var file = document.getElementById("file");
-		file.textContent = '';
-		file.appendChild(createHeader("Details"));
-		file.appendChild(createTitleLine("Filename", this.filename));
-		file.appendChild(createTitleLine("Resolution", sizeText));
-		file.appendChild(createHeader("Export"));
-		var lineExportTvg = createPropertyLine("Export .tvg file");
-		lineExportTvg.addEventListener("click", () => {player.save2Tvg()}, false);
-		file.appendChild(lineExportTvg);
-		var lineExportPng = createPropertyLine("Export .png file");
-		lineExportPng.addEventListener("click", exportCanvasToPng, false);
-		file.appendChild(lineExportPng);
-		var lineExportGif = createPropertyLine("Export .gif file");
-		lineExportGif.addEventListener("click", () => {player.save2Gif()}, false);
-		file.appendChild(lineExportGif);
-
-		//switch to file list in default.
-		onShowFilesList();
-	}
-
-	save2Tvg() {
-		if (this.tvg.save2Tvg()) {
-			let data = FS.readFile('output.tvg');
-			//33 is the header size
-			if (data.length < 33) {
-				alert("Unable to save the TVG data. The generated file size is invalid.");
-				return;
-			}
-
-			var blob = new Blob([data], {type: 'application/octet-stream'});
-
-			var link = document.createElement("a");
-			link.setAttribute('href', URL.createObjectURL(blob));
-			link.setAttribute('download', changeExtension(player.filename, "tvg"));
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-		} else {
-			let message = "Unable to save the TVG data. Error: " + this.tvg.error();
-			consoleLog(message, ConsoleLogTypes.Error);
-			alert(message);
-		}
-	}
-
-	save2Gif() {
-		if (this.tvg.save2Gif(this.curRead.result, "lottie", 600, 600, 30)) {
-			let data = FS.readFile('output.gif');
-			//6 is the header size
-			if (data.length < 6) {
-				alert("Unable to save the Gif data. The generated file size is invalid.");
-				return;
-			}
-
-			var blob = new Blob([data], {type: 'application/octet-stream'});
-
-			var link = document.createElement("a");
-			link.setAttribute('href', URL.createObjectURL(blob));
-			link.setAttribute('download', changeExtension(player.filename, "gif"));
-			document.body.appendChild(link);
-			link.click();
-			document.body.removeChild(link);
-		} else {
-			let message = "Unable to save the Gif data. Error: " + this.tvg.error();
-			consoleLog(message, ConsoleLogTypes.Error);
-			alert(message);
-		}
-	}
-
-	constructor() {
-		this.tvg = new Module.TvgWasm();
-		this.canvas = document.getElementById("image-canvas");
-		consoleLog("ThorVG module loaded correctly", ConsoleLogTypes.Inner);
-	}
-}
 
 function initialize() {
 	window.addEventListener('dragover', fileDropHighlight, false);
@@ -323,8 +165,8 @@ function openFileBrowse() {
 const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg'];
 
 function allowedFileExtension(filename) {
-	player.filetype = filename.split('.').pop().toLowerCase();
-	return allowedExtensionList.includes(player.filetype);
+	filetype = filename.split('.').pop().toLowerCase();
+	return allowedExtensionList.includes(filetype);
 }
 
 function fileDropHighlight(event) {
@@ -339,8 +181,6 @@ function fileDropUnhighlight(event) {
 }
 
 function fileDropOrBrowseHandle(files) {
-	if (!player) return;
-
 	let supportedFiles = false;
 	for (let i = 0, file; file = files[i]; ++i) {
 		if (!allowedFileExtension(file.name)) continue;
@@ -352,14 +192,60 @@ function fileDropOrBrowseHandle(files) {
 		return false;
 	}
 
-	player.loadFile(filesList[filesList.length - 1]);
-	createFilesListTab();
+	const targetFile = filesList[filesList.length - 1];
+	loadFile(targetFile);
 	return false;
 }
 
-function createFilesListTab() {
-	if (!player) return;
+function frameCallback() {
+	refreshProgressValue();
+}
 
+function loadCallback() {
+	consoleLog("Loading file " + filename, ConsoleLogTypes.Inner);
+}
+
+function errorCallback() {
+	consoleLog("Loading file " + filename, ConsoleLogTypes.Inner);
+}
+
+function attachAllEventListeners() {
+	player.addEventListener('frame', frameCallback);
+	player.addEventListener('load', loadCallback);
+	player.addEventListener('error', errorCallback);
+}
+
+function loadFile(file) {
+	filename = file.name;
+	const fileExtension = filename.split('.').pop().toLowerCase();
+	const isLottie = fileExtension.endsWith('json');
+	var reader = new FileReader();
+
+	reader.onload = async function(e) {
+		const data = isLottie ? JSON.parse(e.target.result) : e.target.result;
+		await player.load(data, fileExtension);
+
+		showAside();
+		createTabs();
+		showImageCanvas();
+		createFilesListTab();
+		enableZoomContainer();
+		enableProgressContainer();
+	};
+
+	if (isLottie) {
+		reader.readAsText(file);
+	} else {
+		reader.readAsArrayBuffer(file);
+	}
+}
+
+function loadUrl(url) {
+	const fileExtension = url.split('.').pop().toLowerCase();
+	player.load(url, fileExtension);
+}
+
+function createFilesListTab() {
 	var container = document.getElementById("files-list").children[0];
 	container.textContent = '';
 	container.appendChild(createHeader("List of files"));
@@ -370,7 +256,8 @@ function createFilesListTab() {
 			for (var el = event.target; !el.classList.contains('line'); el = el.parentNode) {
 				if (el.tagName === "A") return;
 			}
-			player.loadFile(file);
+
+			loadFile(file);
 		}, false);
 		container.appendChild(lineFile);
 	}
@@ -398,9 +285,8 @@ function showPage(name) {
 
 //main image section
 function showImageCanvas() {
-	var canvas = document.getElementById("image-canvas");
 	var placeholder = document.getElementById("image-placeholder");
-	canvas.classList.remove("hidden");
+	player.classList.remove("hidden");
 	placeholder.classList.add("hidden");
 }
 
@@ -420,6 +306,12 @@ function enableProgressContainer(enable = true) {
 
 	var value = document.getElementById("progress-value");
 	value.innerHTML = 0 + " / " + player.totalFrame;
+}
+
+function resize(width, height) {
+	player.style.width = `${width}px`;
+	player.style.height = `${height}px`;
+	player.resize(width, height);
 }
 
 function onToggleAside() {
@@ -454,12 +346,9 @@ function onConsoleBottom(event) {
 
 function onZoomSlider(event) {
 	var value = event.target.value;
-	var size = 512 * (value / 100 + 0.25);
+	var size = Math.floor(512 * (value / 100 + 0.25));
 
-	player.canvas.width = size;
-	player.canvas.height = size;
-	if (!player.playing) player.render();
-
+	resize(size, size);
 	refreshZoomValue();
 }
 
@@ -468,9 +357,7 @@ function onZoomValue(event) {
 		var value = event.srcElement.innerHTML;
 		var matched = value.match(/^(\d{1,5})\s*x\s*(\d{1,5})$/);
 		if (matched) {
-			player.canvas.width = matched[1];
-			player.canvas.height = matched[2];
-			if (!player.playing) player.render();
+			resize(matched[1], matched[2]);
 			refreshZoomValue();
 		} else {
 			event.srcElement.classList.add("incorrect");
@@ -480,8 +367,7 @@ function onZoomValue(event) {
 }
 
 function onProgressSlider(event) {
-	player.frame((event.target.value / 100) * player.totalFrame);
-	player.render();
+	player.seek((event.target.value / 100) * player.totalFrame);
 	refreshProgressValue();
 }
 
@@ -495,7 +381,6 @@ function onProgressPause() {
 
 function onProgressStop() {
 	player.stop();
-	player.render();
 
 	//reset progress slider
 	var slider = document.getElementById("progress-slider");
@@ -534,7 +419,8 @@ function loadFromWindowURL() {
 		alert("Applied a file in an unsupported format.");
 		return;
 	}
-	player.loadUrl(imageUrl);
+
+  loadUrl(imageUrl);
 }
 
 function createPropertyLine(text) {
@@ -604,17 +490,6 @@ function changeExtension(filename, extension) {
 	return s.join('.');
 }
 
-function exportCanvasToPng() {
-	player.canvas.toBlob(function(blob){
-		var link = document.createElement("a");
-		link.setAttribute('href', URL.createObjectURL(blob));
-		link.setAttribute('download', changeExtension(player.filename, "png"));
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-	}, 'image/png');
-}
-
 function deletePopup() {
 	var popup = document.getElementsByClassName("popup")[0];
 	if (popup) popup.parentNode.removeChild(popup);
@@ -627,20 +502,19 @@ function addByUrl() {
 		alert("Applied a file of unsupported format.");
 		return;
 	}
-	player.loadUrl(url);
+	
+	loadUrl(url);
 }
 
 function refreshProgressValue() {
 	var slider = document.getElementById("progress-slider");
-	slider.value = (player.curFrame / player.totalFrame) * 100;
+	slider.value = (player.currentFrame / player.totalFrame) * 100;
 	var value = document.getElementById("progress-value");
 	value.innerHTML = Math.round(player.curFrame) + " / " + Math.floor(player.totalFrame);
-
 }
 
 function refreshZoomValue() {
-	var canvas = document.getElementById("image-canvas");
 	var value = document.getElementById("zoom-value");
-	value.innerHTML = canvas.width + " x " + canvas.height;
+	value.innerHTML = player.offsetWidth + " x " + player.offsetHeight;
 	value.classList.remove("incorrect");
 }

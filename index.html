@@ -29,12 +29,13 @@
 	<link rel="stylesheet"  href="style.css">
 	<link rel="icon" type="image/svg+xml" href="favicon.svg">
 	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+	<script src="./lottie-player.js"></script>
 	<title>ThorVG Viewer | Thor Vector Graphics</title>
 </head>
 <body>
 	<section>
 		<div id="image-area">
-			<canvas id="image-canvas" width="800" height="800" class="hidden"></canvas>
+			<lottie-player class="hidden" autoPlay loop></lottie-player>
 			<div id="image-placeholder">Drop a file here or click to browse (.tvg, .svg, .json, .jpg, .png)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
 			<input id="image-file-selector" type="file" accept=".tvg,.svg,.json,.jpg,.png" multiple>
 		</div>
