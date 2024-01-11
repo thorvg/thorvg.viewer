@@ -478,6 +478,7 @@ section .hidden {
 
 section #image-area {
 	flex: 1 1 0;
+	z-index: -1;
 	overflow: hidden;
 	display: flex;
 	align-items: center;
@@ -679,4 +680,13 @@ span.line-name {
 	overflow: hidden;
 	display: flex;
 	word-break: break-word;
+}
+
+lottie-player {
+	position: fixed;
+	width: 800px;
+	height: 800px;
+	overflow: hidden;
+	display: block;
+	z-index: -1;
 }
