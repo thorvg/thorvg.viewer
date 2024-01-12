@@ -478,7 +478,6 @@ section .hidden {
 
 section #image-area {
 	flex: 1 1 0;
-	z-index: -1;
 	overflow: hidden;
 	display: flex;
 	align-items: center;
