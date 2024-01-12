@@ -510,7 +510,7 @@ function refreshProgressValue() {
 	var slider = document.getElementById("progress-slider");
 	slider.value = (player.currentFrame / player.totalFrame) * 100;
 	var value = document.getElementById("progress-value");
-	value.innerHTML = Math.round(player.curFrame) + " / " + Math.floor(player.totalFrame);
+	value.innerHTML = Math.round(player.currentFrame) + " / " + Math.floor(player.totalFrame);
 }
 
 function refreshZoomValue() {
