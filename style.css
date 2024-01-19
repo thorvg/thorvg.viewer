@@ -485,6 +485,7 @@ section #image-area {
 }
 
 body.dark-mode section #image-area {
+	z-index: -1;
 	background-color: #1b2124;
 	color: #f6f6f6;
 }
