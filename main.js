@@ -243,6 +243,11 @@ function loadFile(file) {
 function loadUrl(url) {
 	const fileExtension = url.split('.').pop().toLowerCase();
 	player.load(url, fileExtension);
+
+	showImageCanvas();
+	enableZoomContainer();
+	enableProgressContainer();
+	showPage("progress");
 }
 
 function createFilesListTab() {
@@ -518,3 +523,4 @@ function refreshZoomValue() {
 	value.innerHTML = player.offsetWidth + " x " + player.offsetHeight;
 	value.classList.remove("incorrect");
 }
+
