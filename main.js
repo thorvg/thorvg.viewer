@@ -162,7 +162,7 @@ function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
-const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg'];
+const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg', 'webp'];
 
 function allowedFileExtension(filename) {
 	filetype = filename.split('.').pop().toLowerCase();
