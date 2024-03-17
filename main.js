@@ -20,6 +20,30 @@
  * SOFTWARE.
  */
 
+import { getManifest , getAnimation , loadFromArrayBuffer, loadFromURL } from "https://esm.sh/@dotlottie/dotlottie-js@0.7.1?bundle-deps"
+
+async function extractLottie(dotLottie) {
+	const manifest = await getManifest(dotLottie);
+	const animationId = manifest.activeAnimationId || manifest.animations[0]?.id || '';
+	if (!animationId) throw new Error('No animation found');
+
+	const data = await getAnimation(dotLottie, animationId, {
+	  inlineAssets: true,
+	});
+  
+	return data;
+}
+  
+async function loadDotLottieFromArrayBuffer(arrayBuffer) {
+	const dotLottie = await loadFromArrayBuffer(arrayBuffer);
+	return extractLottie(dotLottie);
+}
+  
+async function loadDotLottieFromUrl(url) {
+	const dotLottie = await loadFromURL(url);
+	return extractLottie(dotLottie);
+}
+
 var player;
 var filesList;
 var filetype;
@@ -162,7 +186,7 @@ function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
-const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg', 'webp'];
+const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg', 'webp', 'lottie'];
 
 function allowedFileExtension(filename) {
 	filetype = filename.split('.').pop().toLowerCase();
@@ -219,11 +243,23 @@ function loadFile(file) {
 	filename = file.name;
 	const fileExtension = filename.split('.').pop().toLowerCase();
 	const isLottie = fileExtension.endsWith('json');
+	const isDotLottie = fileExtension.endsWith('lottie');
 	var reader = new FileReader();
 
 	reader.onload = async function(e) {
-		const data = isLottie ? JSON.parse(e.target.result) : e.target.result;
-		await player.load(data, fileExtension);
+		let data;
+		let extension = fileExtension;
+
+		if (isLottie){
+			data = JSON.parse(e.target.result);
+		} else if (isDotLottie){
+			data = await loadDotLottieFromArrayBuffer(e.target.result);
+			extension = 'json';
+		} else {
+			data = e.target.result;
+		}
+
+		await player.load(data, extension);
 
 		showAside();
 		createTabs();
@@ -240,9 +276,17 @@ function loadFile(file) {
 	}
 }
 
-function loadUrl(url) {
+async function loadUrl(url) {
 	const fileExtension = url.split('.').pop().toLowerCase();
-	player.load(url, fileExtension);
+	const isDotLottie = fileExtension.endsWith('lottie');
+
+	if(isDotLottie){
+		const data = await loadDotLottieFromUrl(url);
+
+		await player.load(data, 'json');
+	} else {
+		await player.load(url, fileExtension);
+	}
 
 	showImageCanvas();
 	enableZoomContainer();
