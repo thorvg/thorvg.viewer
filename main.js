@@ -20,28 +20,38 @@
  * SOFTWARE.
  */
 
-import { getManifest , getAnimation , loadFromArrayBuffer, loadFromURL } from "https://esm.sh/@dotlottie/dotlottie-js@0.7.1?bundle-deps"
+import * as dotLottieJS from "https://esm.sh/@dotlottie/dotlottie-js@0.7.1?bundle-deps"
 
-async function extractLottie(dotLottie) {
-	const manifest = await getManifest(dotLottie);
-	const animationId = manifest.activeAnimationId || manifest.animations[0]?.id || '';
-	if (!animationId) throw new Error('No animation found');
+function createAnimFile(id, content) {
+	const blob = new Blob([content], { type: 'application/json' });
+	return new File([blob], `${id}.json`, { type: 'application/json' });
+}
+  
+async function extractAnimationsFromDotLottie(dotLottieArrayBuffer) {    
+	const filesMap = await dotLottieJS.getAnimations(dotLottieArrayBuffer, { inlineAssets: true });
+	return Object.entries(filesMap).map(([id, content]) => createAnimFile(id, JSON.stringify(content)));
+}
+  
+async function getDotLottieAnimations(file) {
+	const reader = new FileReader();
 
-	const data = await getAnimation(dotLottie, animationId, {
-	  inlineAssets: true,
+	return new Promise((resolve, reject) => {
+		reader.onload = async function(e) {
+			const dotLottie = await dotLottieJS.loadFromArrayBuffer(e.target.result);
+			const animationFiles = await extractAnimationsFromDotLottie(dotLottie);
+			resolve(animationFiles);
+		};
+
+		reader.onerror = reject;
+
+		reader.readAsArrayBuffer(file);
 	});
-  
-	return data;
 }
   
-async function loadDotLottieFromArrayBuffer(arrayBuffer) {
-	const dotLottie = await loadFromArrayBuffer(arrayBuffer);
-	return extractLottie(dotLottie);
-}
-  
-async function loadDotLottieFromUrl(url) {
-	const dotLottie = await loadFromURL(url);
-	return extractLottie(dotLottie);
+async function getDotLottieAnimationsFromUrl(url) {
+	const dotLottieArrayBuffer = await dotLottieJS.loadFromURL(url);
+	const animationFiles = await extractAnimationsFromDotLottie(dotLottieArrayBuffer);
+	return animationFiles;
 }
 
 var player;
@@ -61,7 +71,7 @@ const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 			else if (filetype === "tvg" && args[0].indexOf("TVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 			else if (filetype === "json" && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 		}
-		//baseConsole(...args);
+		// baseConsole(...args);
 	};
 })();
 
@@ -204,22 +214,32 @@ function fileDropUnhighlight(event) {
 	event.stopPropagation();
 }
 
-function fileDropOrBrowseHandle(files) {
+async function fileDropOrBrowseHandle(files) {	
 	let supportedFiles = false;
-	for (let i = 0, file; file = files[i]; ++i) {
-		if (!allowedFileExtension(file.name)) continue;
-		filesList.push(file);
-		supportedFiles = true;
-	}
-	if (!supportedFiles) {
-		alert("Please use file(s) of a supported format.");
-		return false;
-	}
 
+	// files is a FileList (e.g. from a file input)
+	if (files instanceof FileList) files = Array.from(files);
+  
+	for (const file of files) {
+	  if (!allowedFileExtension(file.name)) continue;
+  
+	  if (file.name.endsWith('lottie')) {
+		const animationFiles = await getDotLottieAnimations(file);
+		filesList.push(...animationFiles);
+	  } else {
+		filesList.push(file);
+	  }
+	  supportedFiles = true;
+	}
+  	if (!supportedFiles) {
+	  alert("Please use file(s) of a supported format.");
+	  return false;
+	}
+  
 	const targetFile = filesList[filesList.length - 1];
 	loadFile(targetFile);
 	return false;
-}
+  }
 
 function frameCallback() {
 	refreshProgressValue();
@@ -243,23 +263,11 @@ function loadFile(file) {
 	filename = file.name;
 	const fileExtension = filename.split('.').pop().toLowerCase();
 	const isLottie = fileExtension.endsWith('json');
-	const isDotLottie = fileExtension.endsWith('lottie');
 	var reader = new FileReader();
 
 	reader.onload = async function(e) {
-		let data;
-		let extension = fileExtension;
-
-		if (isLottie){
-			data = JSON.parse(e.target.result);
-		} else if (isDotLottie){
-			data = await loadDotLottieFromArrayBuffer(e.target.result);
-			extension = 'json';
-		} else {
-			data = e.target.result;
-		}
-
-		await player.load(data, extension);
+		const data = isLottie ? JSON.parse(e.target.result) : e.target.result;
+		await player.load(data, fileExtension);
 
 		showAside();
 		createTabs();
@@ -278,12 +286,11 @@ function loadFile(file) {
 
 async function loadUrl(url) {
 	const fileExtension = url.split('.').pop().toLowerCase();
-	const isDotLottie = fileExtension.endsWith('lottie');
 
-	if(isDotLottie){
-		const data = await loadDotLottieFromUrl(url);
-
-		await player.load(data, 'json');
+	if (fileExtension.endsWith('lottie')) {
+		const animationFiles = await getDotLottieAnimationsFromUrl(url);
+		filesList.push(...animationFiles);
+		loadFile(animationFiles[0]);
 	} else {
 		await player.load(url, fileExtension);
 	}
