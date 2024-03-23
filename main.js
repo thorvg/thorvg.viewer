@@ -20,6 +20,40 @@
  * SOFTWARE.
  */
 
+import * as dotLottieJS from "https://esm.sh/@dotlottie/dotlottie-js@0.7.1?bundle-deps"
+
+function createAnimFile(id, content) {
+	const blob = new Blob([content], { type: 'application/json' });
+	return new File([blob], `${id}.json`, { type: 'application/json' });
+}
+  
+async function extractAnimationsFromDotLottie(dotLottieArrayBuffer) {    
+	const filesMap = await dotLottieJS.getAnimations(dotLottieArrayBuffer, { inlineAssets: true });
+	return Object.entries(filesMap).map(([id, content]) => createAnimFile(id, JSON.stringify(content)));
+}
+  
+async function getDotLottieAnimations(file) {
+	const reader = new FileReader();
+
+	return new Promise((resolve, reject) => {
+		reader.onload = async function(e) {
+			const dotLottie = await dotLottieJS.loadFromArrayBuffer(e.target.result);
+			const animationFiles = await extractAnimationsFromDotLottie(dotLottie);
+			resolve(animationFiles);
+		};
+
+		reader.onerror = reject;
+
+		reader.readAsArrayBuffer(file);
+	});
+}
+  
+async function getDotLottieAnimationsFromUrl(url) {
+	const dotLottieArrayBuffer = await dotLottieJS.loadFromURL(url);
+	const animationFiles = await extractAnimationsFromDotLottie(dotLottieArrayBuffer);
+	return animationFiles;
+}
+
 var player;
 var filesList;
 var filetype;
@@ -37,7 +71,7 @@ const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 			else if (filetype === "tvg" && args[0].indexOf("TVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 			else if (filetype === "json" && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 		}
-		//baseConsole(...args);
+		// baseConsole(...args);
 	};
 })();
 
@@ -162,7 +196,7 @@ function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
-const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg', 'webp'];
+const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg', 'webp', 'lottie'];
 
 function allowedFileExtension(filename) {
 	filetype = filename.split('.').pop().toLowerCase();
@@ -180,22 +214,32 @@ function fileDropUnhighlight(event) {
 	event.stopPropagation();
 }
 
-function fileDropOrBrowseHandle(files) {
+async function fileDropOrBrowseHandle(files) {	
 	let supportedFiles = false;
-	for (let i = 0, file; file = files[i]; ++i) {
-		if (!allowedFileExtension(file.name)) continue;
-		filesList.push(file);
-		supportedFiles = true;
-	}
-	if (!supportedFiles) {
-		alert("Please use file(s) of a supported format.");
-		return false;
-	}
 
+	// files is a FileList (e.g. from a file input)
+	if (files instanceof FileList) files = Array.from(files);
+  
+	for (const file of files) {
+	  if (!allowedFileExtension(file.name)) continue;
+  
+	  if (file.name.endsWith('lottie')) {
+		const animationFiles = await getDotLottieAnimations(file);
+		filesList.push(...animationFiles);
+	  } else {
+		filesList.push(file);
+	  }
+	  supportedFiles = true;
+	}
+  	if (!supportedFiles) {
+	  alert("Please use file(s) of a supported format.");
+	  return false;
+	}
+  
 	const targetFile = filesList[filesList.length - 1];
 	loadFile(targetFile);
 	return false;
-}
+  }
 
 function frameCallback() {
 	refreshProgressValue();
@@ -240,9 +284,16 @@ function loadFile(file) {
 	}
 }
 
-function loadUrl(url) {
+async function loadUrl(url) {
 	const fileExtension = url.split('.').pop().toLowerCase();
-	player.load(url, fileExtension);
+
+	if (fileExtension.endsWith('lottie')) {
+		const animationFiles = await getDotLottieAnimationsFromUrl(url);
+		filesList.push(...animationFiles);
+		loadFile(animationFiles[0]);
+	} else {
+		await player.load(url, fileExtension);
+	}
 
 	showImageCanvas();
 	enableZoomContainer();
