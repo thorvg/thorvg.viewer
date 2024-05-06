@@ -9,4 +9,4 @@ ThorVG Viewer is a verification tool for the ThorVG Engine. It facilitates immed
 </br>
 
 - [Try it out](https://thorvg.github.io/thorvg.viewer/)
-- [Guide to ThorVG Viewer development](https://github.com/thorvg/thorvg/wiki/ThorVG-Viewer-Development-Guide)
+- [Guide to ThorVG Web development](https://github.com/thorvg/thorvg/wiki/Web-Development)
