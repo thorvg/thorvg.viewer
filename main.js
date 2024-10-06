@@ -53,9 +53,9 @@ window.onload = () => {
   consoleLog("ThorVG module loaded correctly", ConsoleLogTypes.Inner);
 }
 
-function createTabs() {
+async function createTabs() {
 	//file tab
-	var size = player.size;
+	var size = await player.getSize();
 	var sizeText = ((size[0] % 1 === 0) && (size[1] % 1 === 0)) ?
 		size[0].toFixed(0) + " x " + size[1].toFixed(0) :
 		size[0].toFixed(2) + " x " + size[1].toFixed(2);
