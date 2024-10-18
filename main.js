@@ -34,7 +34,6 @@ const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 		if (args[0] && typeof args[0] === 'string') {
 			//slice at the log reset color: "\033[0m"
 			if (filetype === "svg" && args[0].indexOf("SVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
-			else if (filetype === "tvg" && args[0].indexOf("TVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 			else if (filetype === "json" && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 		}
 		//baseConsole(...args);
@@ -66,18 +65,6 @@ function createTabs() {
 	file.appendChild(createTitleLine("Filename", filename));
 	file.appendChild(createTitleLine("Resolution", sizeText));
 	file.appendChild(createHeader("Export"));
-	
-	var lineExportTvg = createPropertyLine("Export .tvg file");
-	lineExportTvg.addEventListener("click", async () => {
-		try {
-			await player.save('tvg');
-		} catch (err) {
-			let message = "Unable to save the TVG data.";
-			consoleLog(message, ConsoleLogTypes.Error);
-			alert(message);
-		}
-	}, false);
-	file.appendChild(lineExportTvg);
 
 	var lineExportPng = createPropertyLine("Export .png file");
 	lineExportPng.addEventListener("click", async () => {
@@ -162,7 +149,7 @@ function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
-const allowedExtensionList = ['tvg', 'svg', 'json', 'png', 'jpg', 'jpeg', 'webp'];
+const allowedExtensionList = ['svg', 'json', 'png', 'jpg', 'jpeg', 'webp'];
 
 function allowedFileExtension(filename) {
 	filetype = filename.split('.').pop().toLowerCase();
