@@ -35,14 +35,13 @@
 <body>
 	<section>
 		<div id="image-area">
-			<lottie-player class="hidden" autoPlay loop></lottie-player>
 			<div id="image-placeholder">Drop a file here or click to browse (.svg, .json, .jpg, .png, .webp)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
 			<input id="image-file-selector" type="file" accept=".svg,.json,.jpg,.png" multiple>
 		</div>
 		<div id="console-area" class="hidden">
 			<a id="console-bottom-scroll" title="Scroll to the bottom"><i class="fa fa-chevron-down"></i></a>
 		</div>
-		<div><small>ThorVG v1.0.0-pre5</small></div>
+		<div><small id="version">ThorVG v1.0.0-pre5 (Software)</small></div>
 	</section>
 	<aside class="hidden">
 		<nav>
@@ -61,7 +60,14 @@
 			<a id="nav-files-list" class="active">
 				<i class="fa fa-files-o"></i>
 			</a>
+
 			<div class="bottom-nav">
+
+				<label id="nav-renderer" class="toggle">
+					<input type="checkbox">
+					<span></span>
+				</label>
+
 				<label id="nav-dark-mode" class="toggle">
 					<input type="checkbox">
 					<span></span>

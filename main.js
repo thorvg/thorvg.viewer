@@ -24,6 +24,8 @@ var player;
 var filesList;
 var filetype;
 var filename;
+var filedata;
+var renderer = 'sw';
 
 //console output
 const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'console-type-error', Warning : 'console-type-warning' };
@@ -42,9 +44,6 @@ const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 
 //initialization
 window.onload = () => {
-	player = document.querySelector('lottie-player');
-	attachAllEventListeners();
-
 	initialize();
 	filesList = new Array();
 	loadFromWindowURL();
@@ -69,7 +68,7 @@ function createTabs() {
 	var lineExportPng = createPropertyLine("Export .png file");
 	lineExportPng.addEventListener("click", async () => {
 		try {
-			await player.save('png');
+			await player.save2png();
 		} catch (err) {
 			let message = "Unable to save the Png data.";
 			consoleLog(message, ConsoleLogTypes.Error);
@@ -81,7 +80,25 @@ function createTabs() {
 	var lineExportGif = createPropertyLine("Export .gif file");
 	lineExportGif.addEventListener("click", async () => {
 		try {
-			await player.save('gif');
+      const fileInput = document.createElement('input');
+      fileInput.type = 'file';
+      fileInput.accept = '.json';
+      fileInput.style.display = 'none';
+      document.body.appendChild(fileInput);
+      fileInput.addEventListener('change', handleFileSelect, false);
+      
+      function handleFileSelect(event) {
+        const reader = new FileReader()
+        reader.onload = handleFileLoad;
+        reader.readAsText(event.target.files[0])
+      }
+      
+      function handleFileLoad(event) {
+        const data = JSON.parse(event.target.result);
+        player.save2gif(data);
+      }
+
+      fileInput.click();
 		} catch (err) {
 			let message = "Unable to save the Gif data.";
 			consoleLog(message, ConsoleLogTypes.Error);
@@ -129,6 +146,7 @@ function initialize() {
 	document.getElementById("nav-file").addEventListener("click", onShowFile, false);
 	document.getElementById("nav-files-list").addEventListener("click", onShowFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
+	document.getElementById("nav-renderer").addEventListener("change", onRendererMode, false);
 	document.getElementById("nav-console").addEventListener("click", onConsoleWindow, false);
 
 	document.getElementById("console-bottom-scroll").addEventListener("click", onConsoleBottom, false);
@@ -202,6 +220,35 @@ function attachAllEventListeners() {
 	player.addEventListener('error', errorCallback);
 }
 
+function loadData(data, fileExtension) {
+  filedata = data;
+
+  // Cleanup any existing lottie-player elements
+  const existingPlayers = document.querySelectorAll('lottie-player');
+  existingPlayers.forEach(player => {
+    player.destroy();
+    player.remove();
+  });
+
+  player = document.createElement('lottie-player');
+  player.autoPlay = true;
+  player.loop = true;
+  player.renderConfig = { renderer };
+  attachAllEventListeners();
+  document.querySelector('#image-area').appendChild(player);
+
+  // FIXME: delay should be removed
+  setTimeout(async () => {
+    await player.load(data, fileExtension);
+    showAside();
+    createTabs();
+    showImageCanvas();
+    createFilesListTab();
+    enableZoomContainer();
+    enableProgressContainer();
+  }, 100);
+}
+
 function loadFile(file) {
 	filename = file.name;
 	const fileExtension = filename.split('.').pop().toLowerCase();
@@ -210,14 +257,8 @@ function loadFile(file) {
 
 	reader.onload = async function(e) {
 		const data = isLottie ? JSON.parse(e.target.result) : e.target.result;
-		await player.load(data, fileExtension);
 
-		showAside();
-		createTabs();
-		showImageCanvas();
-		createFilesListTab();
-		enableZoomContainer();
-		enableProgressContainer();
+    loadData(data, fileExtension);
 	};
 
 	if (isLottie) {
@@ -325,6 +366,21 @@ function onShowFilesList() {
 
 function onDarkMode(event) {
 	document.body.classList.toggle("dark-mode", event.target.checked);
+}
+
+function onRendererMode(event) {
+  const versionEl = document.getElementById('version');
+  if (event.target.checked) {
+    renderer = 'wg';
+    versionEl.textContent = versionEl.textContent.replace('Software', 'WebGPU');
+  } else {
+    renderer = 'sw';
+    versionEl.textContent = versionEl.textContent.replace('WebGPU', 'Software');
+  }
+  if (!filedata) {
+    return;
+  }
+  loadData(filedata, filetype);
 }
 
 function onConsoleWindow(event) {
@@ -440,6 +496,13 @@ function createHeader(text) {
 	header.setAttribute('class', 'header');
 	header.innerHTML = text;
 	return header;
+}
+
+function createDropDown(text) {
+	var dropdown = document.createElement("div");
+	dropdown.setAttribute('class', 'dropdown');
+	dropdown.innerHTML = text;
+	return dropdown;
 }
 
 function bytesToSize(bytes) {
