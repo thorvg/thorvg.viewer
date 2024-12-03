@@ -214,7 +214,7 @@ aside > div > #aside-top {
 	width: 100%;
 	position: absolute;
 	padding-left: 8px;
-	top: 85px;
+	top: 100px;
 }
 
 #progress-slider {
@@ -224,7 +224,7 @@ aside > div > #aside-top {
 #progress #progress-value {
 	width: 40%;
 	left: 58%;
-	top: 85px;
+	top: 100px;
 	position: absolute;
 	line-height: 48px;
 	padding: 8px;
@@ -689,4 +689,50 @@ lottie-player {
 	overflow: hidden;
 	display: block;
 	z-index: -1;
+}
+
+#renderer-select {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: start;
+	width: 100%;
+	position: absolute;
+  top: 185px;
+  height: 64px;
+}
+
+#renderer-dropdown {
+	width: 100%;
+	padding: 8px 20px;
+  margin-top: 4px;
+	border: none;
+	background-color: transparent;
+	color: #38435a;
+	font-size: 16px;
+  height: 40px;
+	cursor: pointer;
+	transition: color 0.2s;
+	outline: none;
+}
+
+#renderer-dropdown:hover {
+	color: #38435a;
+	background-color: #f1f4f7;
+}
+
+#renderer-dropdown:disabled {
+	color: #999;
+	cursor: not-allowed;
+}
+
+#renderer-dropdown {
+	padding-right: 40px;
+	appearance: none;
+	-webkit-appearance: none;
+	-moz-appearance: none;
+	background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+	background-repeat: no-repeat;
+	background-position: right 12px center;
+	background-size: 16px;
 }
