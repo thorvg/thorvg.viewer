@@ -62,12 +62,6 @@
 			</a>
 
 			<div class="bottom-nav">
-
-				<label id="nav-renderer" class="toggle">
-					<input type="checkbox">
-					<span></span>
-				</label>
-
 				<label id="nav-dark-mode" class="toggle">
 					<input type="checkbox">
 					<span></span>
@@ -86,6 +80,7 @@
 				<div id="zoom-value">800 x 800</div>
 			</div>
 			<div id="progress" class="tab">
+                                <div class="header">Progress</div>
 				<div id="progress-value">0 / 0</div>
 				<div id ="progress-slider-container">
 					<input id="progress-slider" type="range" min="0" max="100" value="0" disabled />
@@ -93,6 +88,14 @@
 				<button class="progress-play" id="progress-play"><i class="fa fa-play"></i></button>
 				<button class="progress-pause" id="progress-pause"><i class="fa fa-pause"></i></button>
 				<button class="progress-stop" id="progress-stop"><i class="fa fa-stop"></i></button>
+                                <div id="renderer-select" class="tab">
+                                        <div class="header">Renderer</div>
+                                        <select id="renderer-dropdown">
+                                                <option value="sw">Software</option>
+                                                <option value="gl">WebGL</option>
+                                                <option value="wg">WebGPU</option>
+                                        </select>
+                                </div>
 			</div>
 			<div id="scene-graph" class="tab scrollable">
 				<div class="placeholder">No scene-tree information</br><small>Please load a resource first</small></div>

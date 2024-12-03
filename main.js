@@ -146,7 +146,7 @@ function initialize() {
 	document.getElementById("nav-file").addEventListener("click", onShowFile, false);
 	document.getElementById("nav-files-list").addEventListener("click", onShowFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
-	document.getElementById("nav-renderer").addEventListener("change", onRendererMode, false);
+        document.getElementById("renderer-dropdown").addEventListener("change", onRendererMode, false);
 	document.getElementById("nav-console").addEventListener("click", onConsoleWindow, false);
 
 	document.getElementById("console-bottom-scroll").addEventListener("click", onConsoleBottom, false);
@@ -370,30 +370,21 @@ function onDarkMode(event) {
 
 function onRendererMode(event) {
   const versionEl = document.getElementById('version');
-  if (event.target.checked) {
-    renderer = 'wg';
-    versionEl.textContent = versionEl.textContent.replace('Software', 'WebGPU');
-
-    // FIXME: Temporal code to disable resizing bar to prevent WG runtime error
-    document.getElementById('aside-top').style.display = 'none';
-    document.querySelector('aside > div').style.paddingTop = '0px';
-
-    document.getElementById('progress').style.position = 'absolute';
-    document.getElementById('progress').style.left = '0px';
-    document.getElementById('progress').style.right = '0px';
-    document.getElementById('progress').style.top = '-65px';
-  } else {
-    renderer = 'sw';
-    versionEl.textContent = versionEl.textContent.replace('WebGPU', 'Software');
-
-    // FIXME: Temporal code to disable resizing bar to prevent WG runtime error
-    document.getElementById('aside-top').style.display = 'block';
-    document.querySelector('aside > div').style.paddingTop = '65px';
-
-    document.getElementById('progress').style.position = 'relative';
-    document.getElementById('progress').style.left = '0px';
-    document.getElementById('progress').style.right = '0px';
-    enableZoomContainer();
+  switch (event.target.value) {
+    case 'sw':
+      renderer = 'sw';
+      versionEl.textContent = versionEl.textContent.split('(')[0] + '(Software)';
+      break;
+    case 'wg':
+      renderer = 'wg';
+      versionEl.textContent = versionEl.textContent.split('(')[0] + '(WebGPU)';
+      break;
+    case 'gl':
+      renderer = 'gl';
+      versionEl.textContent = versionEl.textContent.split('(')[0] + '(WebGL)';
+      break;
+    default:
+      return;
   }
   if (!filedata) {
     return;
