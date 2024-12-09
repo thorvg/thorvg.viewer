@@ -25,6 +25,7 @@ var filesList;
 var filetype;
 var filename;
 var filedata;
+var size = 800;
 var renderer = 'sw';
 
 //console output
@@ -240,6 +241,7 @@ function loadData(data, fileExtension) {
   // FIXME: delay should be removed
   setTimeout(async () => {
     await player.load(data, fileExtension);
+    resize(size, size);
     showAside();
     createTabs();
     showImageCanvas();
@@ -403,7 +405,7 @@ function onConsoleBottom(event) {
 
 function onZoomSlider(event) {
 	var value = event.target.value;
-	var size = Math.floor(512 * (value / 100 + 0.25));
+	size = Math.floor(512 * (value / 100 + 0.25));
 
 	resize(size, size);
 	refreshZoomValue();
