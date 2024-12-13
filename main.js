@@ -147,6 +147,7 @@ function initialize() {
 	document.getElementById("nav-file").addEventListener("click", onShowFile, false);
 	document.getElementById("nav-files-list").addEventListener("click", onShowFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
+	document.getElementById("nav-stats-mode").addEventListener("change", onStatsMode, false);
         document.getElementById("renderer-dropdown").addEventListener("change", onRendererMode, false);
 	document.getElementById("nav-console").addEventListener("click", onConsoleWindow, false);
 
@@ -368,6 +369,65 @@ function onShowFilesList() {
 
 function onDarkMode(event) {
 	document.body.classList.toggle("dark-mode", event.target.checked);
+}
+
+function onStatsMode(event) {
+	if (event.target.checked) {
+		// Create and inject script element for stats.js
+		const statsScript = document.createElement('script');
+		statsScript.src = 'https://mrdoob.github.io/stats.js/build/stats.min.js';
+		statsScript.onload = () => {
+			// Initialize FPS panel
+			const statsFPS = new Stats();
+			statsFPS.showPanel(0);
+                        statsFPS.dom.classList.add("stats");
+			statsFPS.dom.style.cssText = "position:fixed;top:0;left:0;cursor:pointer;opacity:0.9;z-index:10000";
+			document.body.appendChild(statsFPS.dom);
+
+			// Initialize MS panel
+			const statsMS = new Stats();
+			statsMS.showPanel(1);
+                        statsMS.dom.classList.add("stats");
+			statsMS.dom.style.cssText = "position:fixed;top:0;left:80px;cursor:pointer;opacity:0.9;z-index:10000";
+			document.body.appendChild(statsMS.dom);
+
+			// Initialize MB panel if supported
+			let statsMB;
+			if (self.performance && self.performance.memory) {
+				statsMB = new Stats();
+				statsMB.showPanel(2);
+				statsMB.dom.classList.add("stats");
+				statsMB.dom.style.cssText = "position:fixed;top:0;left:160px;cursor:pointer;opacity:0.9;z-index:10000";
+				document.body.appendChild(statsMB.dom);
+			}
+
+			// Start animation loop
+			function animate() {
+				statsFPS.begin();
+				statsMS.begin();
+				if (statsMB) statsMB.begin();
+
+				statsFPS.end();
+				statsMS.end();
+				if (statsMB) statsMB.end();
+
+				requestAnimationFrame(animate);
+			}
+
+			requestAnimationFrame(animate);
+		};
+		document.head.appendChild(statsScript);
+                return;
+	}
+
+	// Remove stats.js panels and script when benchmark mode is disabled
+	const statsPanels = document.querySelectorAll('div[class="stats"]');
+	statsPanels.forEach(panel => panel.remove());
+
+	const statsScript = document.querySelector('script[src*="stats.js"]');
+	if (statsScript) {
+		statsScript.remove();
+	}
 }
 
 function onRendererMode(event) {
