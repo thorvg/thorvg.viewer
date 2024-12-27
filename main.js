@@ -235,6 +235,7 @@ function loadData(data, fileExtension) {
   player = document.createElement('lottie-player');
   player.autoPlay = true;
   player.loop = true;
+  player.wasmUrl = '/thorvg-wasm.wasm';
   player.renderConfig = { renderer };
   attachAllEventListeners();
   document.querySelector('#image-area').appendChild(player);
