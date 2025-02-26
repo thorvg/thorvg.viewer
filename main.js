@@ -37,7 +37,7 @@ const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 		if (args[0] && typeof args[0] === 'string') {
 			//slice at the log reset color: "\033[0m"
 			if (filetype === "svg" && args[0].indexOf("SVG") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
-			else if (filetype === "json" && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
+			else if ((filetype === "json" || filetype === "lot") && args[0].indexOf("LOTTIE") > 0) consoleLog(args[0].slice(args[0].lastIndexOf("[0m") + 4), ConsoleLogTypes.Warning);
 		}
 		//baseConsole(...args);
 	};
@@ -256,7 +256,7 @@ function loadData(data, fileExtension) {
 function loadFile(file) {
 	filename = file.name;
 	const fileExtension = filename.split('.').pop().toLowerCase();
-	const isLottie = fileExtension.endsWith('json');
+	const isLottie = fileExtension.endsWith('json') || fileExtension.endsWith('lot');
 	var reader = new FileReader();
 
 	reader.onload = async function(e) {
