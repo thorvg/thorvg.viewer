@@ -169,7 +169,7 @@ function openFileBrowse() {
 	document.getElementById('image-file-selector').click();
 }
 
-const allowedExtensionList = ['svg', 'json', 'png', 'jpg', 'jpeg', 'webp'];
+const allowedExtensionList = ['svg', 'json', 'png', 'jpg', 'jpeg', 'lot', 'webp'];
 
 function allowedFileExtension(filename) {
 	filetype = filename.split('.').pop().toLowerCase();
