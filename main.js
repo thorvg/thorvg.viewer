@@ -81,25 +81,7 @@ function createTabs() {
 	var lineExportGif = createPropertyLine("Export .gif file");
 	lineExportGif.addEventListener("click", async () => {
 		try {
-      const fileInput = document.createElement('input');
-      fileInput.type = 'file';
-      fileInput.accept = '.json';
-      fileInput.style.display = 'none';
-      document.body.appendChild(fileInput);
-      fileInput.addEventListener('change', handleFileSelect, false);
-      
-      function handleFileSelect(event) {
-        const reader = new FileReader()
-        reader.onload = handleFileLoad;
-        reader.readAsText(event.target.files[0])
-      }
-      
-      function handleFileLoad(event) {
-        const data = JSON.parse(event.target.result);
-        player.save2gif(data);
-      }
-
-      fileInput.click();
+			player.save2gif(filedata);
 		} catch (err) {
 			let message = "Unable to save the Gif data.";
 			consoleLog(message, ConsoleLogTypes.Error);
@@ -261,8 +243,7 @@ function loadFile(file) {
 
 	reader.onload = async function(e) {
 		const data = isLottie ? JSON.parse(e.target.result) : e.target.result;
-
-    loadData(data, fileExtension);
+		loadData(data, fileExtension);
 	};
 
 	if (isLottie) {
