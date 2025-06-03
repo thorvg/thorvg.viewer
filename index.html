@@ -92,14 +92,22 @@
 				<button class="progress-play" id="progress-play"><i class="fa fa-play"></i></button>
 				<button class="progress-pause" id="progress-pause"><i class="fa fa-pause"></i></button>
 				<button class="progress-stop" id="progress-stop"><i class="fa fa-stop"></i></button>
-                                <div id="renderer-select" class="tab">
+                                <div id="renderer-select" class="tab dropdown-container">
                                         <div class="header">Render Backend</div>
-                                        <select id="renderer-dropdown">
+                                        <select id="renderer-dropdown" class="dropdown">
                                                 <option value="sw">Software</option>
                                                 <option value="gl">WebGL</option>
                                                 <option value="wg">WebGPU</option>
                                         </select>
                                 </div>
+
+                                <div id="device-pixel-ratio-select" class="tab dropdown-container">
+                                  <div class="header">Device Pixel Ratio</div>
+                                  <select id="device-pixel-ratio-dropdown" class="dropdown">
+                                    <option value="true">Enable</option>
+                                    <option value="false" selected>Disable</option>
+                                  </select>
+                          </div>
 			</div>
 			<div id="scene-graph" class="tab scrollable">
 				<div class="placeholder">No scene-tree information</br><small>Please load a resource first</small></div>

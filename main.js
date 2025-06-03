@@ -27,6 +27,7 @@ var filename;
 var filedata;
 var size = 800;
 var renderer = 'sw';
+var enableDevicePixelRatio = false;
 
 //console output
 const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'console-type-error', Warning : 'console-type-warning' };
@@ -130,7 +131,8 @@ function initialize() {
 	document.getElementById("nav-files-list").addEventListener("click", onShowFilesList, false);
 	document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
 	document.getElementById("nav-stats-mode").addEventListener("change", onStatsMode, false);
-        document.getElementById("renderer-dropdown").addEventListener("change", onRendererMode, false);
+    document.getElementById("renderer-dropdown").addEventListener("change", onRendererMode, false);
+    document.getElementById("device-pixel-ratio-dropdown").addEventListener("change", onDevicePixelRatioMode, false);
 	document.getElementById("nav-console").addEventListener("click", onConsoleWindow, false);
 
 	document.getElementById("console-bottom-scroll").addEventListener("click", onConsoleBottom, false);
@@ -218,7 +220,7 @@ function loadData(data, fileExtension) {
   player.autoPlay = true;
   player.loop = true;
   player.wasmUrl = 'thorvg-wasm.wasm';
-  player.renderConfig = { renderer };
+  player.renderConfig = { renderer, enableDevicePixelRatio };
   attachAllEventListeners();
   document.querySelector('#image-area').appendChild(player);
 
@@ -430,6 +432,15 @@ function onRendererMode(event) {
     default:
       return;
   }
+  if (!filedata) {
+    return;
+  }
+  loadData(filedata, filetype);
+}
+
+function onDevicePixelRatioMode(event) {
+  const devicePixelRatio = event.target.value;
+  enableDevicePixelRatio = devicePixelRatio === 'true';
   if (!filedata) {
     return;
   }
