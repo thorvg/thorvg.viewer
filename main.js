@@ -43,9 +43,33 @@ const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'cons
 	};
 })();
 
+//renderer support check
+function isWebGLAvailable() {
+	try {
+		var canvas = document.createElement('canvas');
+		return Boolean(window.WebGLRenderingContext && (canvas.getContext('webgl') || canvas.getContext('experimental-webgl')));
+	} catch (e) {
+		return false;
+	}
+}
+
+function isWebGPUAvailable() {
+	return typeof navigator.gpu !== 'undefined';
+}
+
+function checkRendererSupport() {
+	const rendererDropdown = document.getElementById('renderer-dropdown');
+	const rendererOptions = rendererDropdown.querySelectorAll('option');
+	rendererOptions.forEach(option => {
+		const shouldDisable = (option.value === 'gl' && !isWebGLAvailable()) || (option.value === 'wg' && !isWebGPUAvailable());
+		option.disabled = shouldDisable;
+	});
+}
+
 //initialization
 window.onload = () => {
 	initialize();
+	checkRendererSupport();
 	filesList = new Array();
 	loadFromWindowURL();
 
