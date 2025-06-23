@@ -318,14 +318,6 @@ aside > div .scrollable {
 	padding: 8px 8px 8px 64px;
 }
 
-#scene-graph .layer {
-	cursor: pointer;
-}
-
-#scene-graph .layer:hover, .line:hover {
-	background-color: #f1f4f7;
-}
-
 .layer > .caret {
 	position: absolute;
 	width: 32px;
