@@ -23,97 +23,195 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<meta charset="UTF-8" />
-	<meta name="description" content="ThorVG Viewer Application">
-	<meta name="author" content="co-authored by Shinwoo Kim, Hermet Park, Michal Maciola, Jinny You">
-	<link rel="stylesheet"  href="style.css">
-	<link rel="icon" type="image/svg+xml" href="favicon.svg">
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-	<script src="./lottie-player.js"></script>
-	<title>ThorVG Viewer | Thor Vector Graphics</title>
+    <meta charset="UTF-8" />
+    <title>ThorVG Viewer | Thor Vector Graphics</title>
+    <meta name="description" content="ThorVG Viewer Application">
+    <meta name="author" content="co-authored by Shinwoo Kim, Hermet Park, Michal Maciola, Jinny You">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="./lottie-player.js"></script>
 </head>
 <body>
-	<section>
-		<div id="image-area">
-			<div id="image-placeholder">Drag and drop a file here, or click to browse (.svg, lottie: .json/.lot)<br/><small>ThorVG Viewer works on your local device. File(s) won't be uploaded to the internet.</small></div>
-			<input id="image-file-selector" type="file" accept=".svg,.lot,.json,.jpg,.png" multiple>
-		</div>
-		<div id="console-area" class="hidden">
-			<a id="console-bottom-scroll" title="Scroll to the bottom"><i class="fa fa-chevron-down"></i></a>
-		</div>
-		<div><small id="version">ThorVG v1.0.0-pre23 (Software)</small></div>
-	</section>
-	<aside class="hidden">
-		<nav>
-			<a id="nav-toggle-aside">
-				<i class="fa fa-bars"></i>
-			</a>
-			<hr />
-			<a id="nav-progress">
-				<i class="fa fa-play"></i>
-			</a>
-			<hr />
-			<a id="nav-file">
-				<i class="fa fa-file-text-o"></i>
-			</a>
-			<hr />
-			<a id="nav-files-list" class="active">
-				<i class="fa fa-files-o"></i>
-			</a>
-
-			<div class="bottom-nav">
-				<label id="nav-stats-mode" class="toggle">
-					<input type="checkbox">
-					<span></span>
-				</label>
-				<label id="nav-dark-mode" class="toggle">
-					<input type="checkbox">
-					<span></span>
-				</label>
-				<hr />
-				<a id="nav-console">
-					<i class="fa fa-history"></i>
-				</a>
-			</div>
-		</nav>
-		<div>
-			<div id="aside-top">
-				<div id="zoom-slider-container">
-					<input id="zoom-slider" type="range" min="0" max="300" value="100" disabled />
-				</div>
-				<div id="zoom-value">800 x 800</div>
-			</div>
-			<div id="progress" class="tab">
-                                <div class="header">Progress</div>
-				<div id="progress-value">0 / 0</div>
-				<div id ="progress-slider-container">
-					<input id="progress-slider" type="range" min="0" max="100" value="0" disabled />
-				</div>
-				<button class="progress-play" id="progress-play"><i class="fa fa-play"></i></button>
-				<button class="progress-pause" id="progress-pause"><i class="fa fa-pause"></i></button>
-				<button class="progress-stop" id="progress-stop"><i class="fa fa-stop"></i></button>
-                                <div id="renderer-select" class="tab">
-                                        <div class="header">Render Backend</div>
-                                        <select id="renderer-dropdown">
-                                                <option value="sw">Software</option>
-                                                <option value="gl">WebGL</option>
-                                                <option value="wg">WebGPU</option>
-                                        </select>
+    <div class="root-container">
+        <div class="preview">
+            <button id="drawer-toggle" class="button drawer-toggle"></button>
+            <div id="image-area">
+                <div id="image-placeholder">
+                    <p>Drag and drop a file here, or click to browse<br/>(.svg, lottie: .json/.lot)</p>
+                </div>
+                <input id="image-file-selector" type="file" accept=".svg,.lot,.json,.jpg,.png" multiple>
+            </div>
+            <div id="console-area" class="hidden"></div>
+            <div class="info-area"><p id="version">ThorVG v1.0.0-pre22 · Software</p></div>
+            <div class="actions">
+                <button title="Stats Mode" class="button button-stats"></button>
+                <button title="Dark Mode" class="button button-dark"></button>
+                <button title="History" class="button button-history" id="nav-history"></button>
+                <label id="nav-stats-mode" class="toggle"><input type="checkbox"></label>
+                <label id="nav-dark-mode" class="toggle"><input type="checkbox"></label>
+            </div>
+        </div>
+        <aside class="drawer">
+            <div class="controls">
+                <div class="section-controls">
+                    <div class="control-item">
+                        <div class="item-expand">
+                            <h2 class="ctrl-title">Canvas</h2>
+                            <button type="button" aria-expanded="true" aria-controls="accordion-panel-171" class="expand-button" aria-label="Toggle Canvas section">
+                                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.125em" class="expand-icon">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div role="region" class="inner-container column">
+                            <h4 class="ctrl-description" id="zoom-value">800 X 800</h4>
+                            <div id="zoom-slider-container">
+                                <input id="zoom-slider" type="range" min="0" max="300" value="100" disabled />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <div class="item-expand">
+                            <h2 class="ctrl-title">Progress</h2>
+                            <button type="button" aria-expanded="true" aria-controls="accordion-panel-172" class="expand-button" aria-label="Toggle Progress section">
+                                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.125em" class="expand-icon">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div role="region" class="inner-container column">
+                            <h4 class="ctrl-description" id="progress-value">0 / 0</h4>
+                            <div id="progress-slider-container">
+                                <input id="progress-slider" type="range" min="0" max="100" value="0" disabled />
+                            </div>
+                            <div class="progress-button-container">
+                                <div class="progress-button" id="progress-play">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                                        <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80L0 432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z"/>
+                                    </svg>
                                 </div>
-			</div>
-			<div id="file" class="tab scrollable">
-				<div class="placeholder">No file information</br><small>Please load a resource first</small></div>
-			</div>
-			<div id="files-list" class="tab active">
-				<div class="container scrollable">
-					<div class="placeholder">No file lists</br><small>Please load a resource first</small></div>
-				</div>
-				<div class="upload">
-					<a id="add-file-local"><i class="fa fa-upload"></i>Add files</a><a id="add-file-url">from url</a>
-				</div>
-			</div>
-		</div>
-	</aside>
-	<script type="text/javascript" src="main.js"></script>
+                                <div class="progress-button" id="progress-pause">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
+                                        <path d="M48 64C21.5 64 0 85.5 0 112L0 400c0 26.5 21.5 48 48 48l32 0c26.5 0 48-21.5 48-48l0-288c0-26.5-21.5-48-48-48L48 64zm192 0c-26.5 0-48 21.5-48 48l0 288c0 26.5 21.5 48 48 48l32 0c26.5 0 48-21.5 48-48l0-288c0-26.5-21.5-48-48-48l-32 0z"/>
+                                    </svg>
+                                </div>
+                                <div class="progress-button" id="progress-stop">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512">
+                                        <path d="M0 128C0 92.7 28.7 64 64 64H320c35.3 0 64 28.7 64 64V384c0 35.3-28.7 64-64 64H64c-35.3 0-64-28.7-64-64V128z"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <div class="item-expand">
+                            <h2 class="ctrl-title">Render Backend</h2>
+                            <button type="button" aria-expanded="true" aria-controls="accordion-panel-173" class="expand-button" aria-label="Toggle Render Backend section">
+                                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.125em" class="expand-icon">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div role="region" class="inner-container column">
+                            <div id="renderer-select" class="tab">
+                                <select id="renderer-dropdown">
+                                    <option value="sw">Software</option>
+                                    <option value="gl">WebGL</option>
+                                    <option value="wg">WebGPU</option>
+                                </select>
+                                <svg class="arrow-icon" viewBox="0 0 24 24">
+                                    <path d="M6 9l6 6 6-6" stroke="currentColor" stroke-linejoin="round" stroke-width="0.15em" fill="none" />
+                                </svg>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <div class="item-expand">
+                            <h2 class="ctrl-title">Export</h2>
+                            <button type="button" aria-expanded="true" aria-controls="accordion-panel-174" class="expand-button" aria-label="Toggle Export section">
+                                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.125em" class="expand-icon">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div class="inner-container row">
+                            <button type="button" class="ctrl-button" id="export-png">png</button>
+                            <button type="button" class="ctrl-button" id="export-gif">gif</button>
+                        </div>
+                    </div>
+                    <div class="control-item">
+                        <div class="item-expand">
+                            <h2 class="ctrl-title">Details</h2>
+                            <button type="button" aria-expanded="true" aria-controls="accordion-panel-175" class="expand-button" aria-label="Toggle Details section">
+                                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.125em" class="expand-icon">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div role="region" class="inner-container column">
+                            <div id="file-detail">
+                                <div class="placeholder">
+                                    <h4 class="ctrl-description">No file information</h4>
+                                </div>
+                            </div>
+                            <!--
+                            <div id="file-detail" class="tab active">
+                                <div class="line">
+                                <span class="line-title">File Name</span>
+                                <span class="line-content">square-envelope-solid-envelope-solid.svg</span>
+                                </div>
+                                <div class="line">
+                                <span class="line-title">Resolution</span>
+                                <span class="line-content">448 x 512</span></div>
+                            </div>
+                            -->
+                        </div>
+                    </div>
+                    <div class="control-item" style="min-height: 400px;">
+                        <div class="item-expand">
+                            <h2 class="ctrl-title">List Of Files</h2>
+                            <button type="button" aria-expanded="true" aria-controls="accordion-panel-176" class="expand-button" aria-label="Toggle List Of Files section">
+                                <svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round" stroke-width="0.125em" class="expand-icon">
+                                    <path d="M6 9l6 6 6-6"></path>
+                                </svg>
+                            </button>
+                        </div>
+                        <div role="region" class="inner-container column">
+                            <div id="files-list">
+                                <div class="container">
+                                    <!--
+                                    <div class="line">
+                                        <span class="line-name">square-envelope-solid.svg</span>
+                                        <span class="line-details">610 bytes</span>
+                                        <button class="ctrl-button trash">
+                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M135.2 17.7C140.6 6.8 151.7 0 163.8 0L284.2 0c12.1 0 23.2 6.8 28.6 17.7L320 32l96 0c17.7 0 32 14.3 32 32s-14.3 32-32 32L32 96C14.3 96 0 81.7 0 64S14.3 32 32 32l96 0 7.2-14.3zM32 128l384 0 0 320c0 35.3-28.7 64-64 64L96 512c-35.3 0-64-28.7-64-64l0-320zm96 64c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16zm96 0c-8.8 0-16 7.2-16 16l0 224c0 8.8 7.2 16 16 16s16-7.2 16-16l0-224c0-8.8-7.2-16-16-16z"/></svg>
+                                        </button>
+                                    </div>
+                                    -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="section-upload">
+                    <h2 class="ctrl-title">Upload</h2>
+                    <div class="inner-container row">
+                        <input type="file" id="hidden-file-input" accept=".svg, .json, .lot" style="display: none;" />
+                        <button type="button" class="ctrl-button" id="add-file-local">File</button>
+                        <button type="button" class="ctrl-button" id="add-file-url">Url</button>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div id="drawer-backdrop" class="drawer-backdrop"></div>
+    </div>
+    <script type="text/javascript" src="main.js"></script>
 </body>
 </html>
