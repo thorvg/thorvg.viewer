@@ -160,7 +160,6 @@ function initialize() {
         console.log('Stats checkbox is now', checkbox.checked ? 'checked' : 'unchecked');
         checkbox.dispatchEvent(new Event('change', { bubbles: true }));
     });
-    /*document.getElementById("console-bottom-scroll").addEventListener("click", onConsoleBottom, false);*/
 
     document.getElementById("zoom-slider").addEventListener("input", onZoomSlider, false);
     document.getElementById("zoom-value").addEventListener("keydown", onZoomValue, false);
@@ -278,7 +277,6 @@ function loadData(data, fileExtension) {
     setTimeout(async () => {
         await player.load(data, fileExtension);
         resize(size, size);
-        /*showAside();*/
         createTabs();
         showImageCanvas();
         createFilesListTab();
@@ -331,27 +329,6 @@ function createFilesListTab() {
     }
 }
 
-/*
-function showAside() {
-    var aside = document.getElementsByTagName("aside")[0];
-    aside.classList.remove("hidden");
-}
-
-function showPage(name) {
-    showAside();
-    var aside = document.getElementsByTagName("aside")[0];
-    var tabs = aside.getElementsByClassName("tab");
-    for (let tab of tabs) {
-        tab.classList.toggle("active", tab.id === name);
-    }
-    var nav = aside.getElementsByTagName("nav")[0];
-    var navChilds = nav.childNodes;
-    for (let child of navChilds) {
-        if (child.tagName === "A")
-            child.classList.toggle("active", child.id === "nav-" + name);
-    }
-}*/
-
 // Main image section
 function showImageCanvas() {
     var placeholder = document.getElementById("image-placeholder");
@@ -382,28 +359,6 @@ function resize(width, height) {
     player.style.height = `${height}px`;
     player.resize(width, height);
 }
-
-/*
-function onToggleAside() {
-    var aside = document.getElementsByTagName("aside")[0];
-    aside.classList.toggle("hidden");
-}
-*/
-/*
-function onShowProgress() {
-    showPage("progress");
-}
-*/
-/*
-function onShowFile() {
-    showPage("file");
-}
-*/
-/*
-function onShowFilesList() {
-    showPage("files-list");
-}
-*/
 
 function onDarkMode(event) {
     document.body.classList.toggle("dark-mode", event.target.checked);
