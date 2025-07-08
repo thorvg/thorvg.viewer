@@ -146,8 +146,8 @@ function initialize() {
 
     document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
     document.getElementById("nav-stats-mode").addEventListener("change", onStatsMode, false);
-    document.getElementById("renderer-dropdown").addEventListener("change", onRendererMode, false);
     document.getElementById("nav-history").addEventListener("click", onConsoleWindow, false);
+    document.getElementById("renderer-dropdown").addEventListener("change", onRendererMode, false);
     document.querySelector('.button-stats').addEventListener('click', () => {
     const checkbox = document.querySelector('#nav-stats-mode input[type="checkbox"]');
         checkbox.checked = !checkbox.checked;
@@ -172,24 +172,16 @@ function initialize() {
     document.getElementById("add-file-local").addEventListener("click", openFileBrowse, false);
     document.getElementById("add-file-url").addEventListener("click", onAddFileUrl, false);
 
-    const drawer = document.querySelector('.drawer');
-    const drawerToggle = document.getElementById('drawer-toggle');
-    const backdrop = document.getElementById('drawer-backdrop');
-    const actions = document.querySelector('.actions');
-    drawerToggle.addEventListener('click', () => {
-        drawer.classList.add('open');
-        backdrop.classList.add('show');
-        if (window.innerWidth <= 1023) {
-            actions.style.right = '340px';
-        }
+    document.getElementById('drawer-toggle').addEventListener('click', openDrawer, true);
+    document.getElementById('drawer-backdrop').addEventListener('click', closeDrawer, false);
+    document.querySelector('.ctrl-button.close').addEventListener("click", closeDrawer, false);
+    document.querySelector('.ctrl-button.dark').addEventListener("click", onDarkMode, false);
+    document.querySelector('.ctrl-button.stats').addEventListener('click', function () {
+        const toggle = document.getElementById('nav-stats-mode');
+        toggle.checked = !toggle.checked;
+        toggle.dispatchEvent(new Event('change'))
     });
-    backdrop.addEventListener('click', () => {
-        drawer.classList.remove('open');
-        backdrop.classList.remove('show');
-        if (window.innerWidth <= 1023) {
-            actions.style.right = '80px';
-        }
-    });
+    document.querySelector('.ctrl-button.history').addEventListener("click", onConsoleWindow, false);
     window.addEventListener('resize', () => {
         if (window.innerWidth >= 1024) {
             // Inline style removed => CSS media query reapplied
@@ -374,14 +366,14 @@ function onStatsMode(event) {
             const statsFPS = new Stats();
             statsFPS.showPanel(0);
             statsFPS.dom.classList.add("stats");
-            statsFPS.dom.style.cssText = "position:fixed;top:16px;left:20px;cursor:pointer;opacity:0.9;z-index:10000";
+            statsFPS.dom.style.cssText = "position:fixed;top:16px;left:20px;cursor:pointer;opacity:0.9;z-index:200";
             document.body.appendChild(statsFPS.dom);
 
             // Initialize MS panel
             const statsMS = new Stats();
             statsMS.showPanel(1);
             statsMS.dom.classList.add("stats");
-            statsMS.dom.style.cssText = "position:fixed;top:16px;left:100px;cursor:pointer;opacity:0.9;z-index:10000";
+            statsMS.dom.style.cssText = "position:fixed;top:16px;left:100px;cursor:pointer;opacity:0.9;z-index:200";
             document.body.appendChild(statsMS.dom);
 
             // Initialize MB panel if supported
@@ -390,7 +382,7 @@ function onStatsMode(event) {
                 statsMB = new Stats();
                 statsMB.showPanel(2);
                 statsMB.dom.classList.add("stats");
-                statsMB.dom.style.cssText = "position:fixed;top:16px;left:180px;cursor:pointer;opacity:0.9;z-index:10000";
+                statsMB.dom.style.cssText = "position:fixed;top:16px;left:180px;cursor:pointer;opacity:0.9;z-index:200";
                 document.body.appendChild(statsMB.dom);
             }
 
@@ -639,4 +631,26 @@ function refreshZoomValue() {
     var value = document.getElementById("zoom-value");
     value.innerHTML = player.offsetWidth + " x " + player.offsetHeight;
     value.classList.remove("incorrect");
+}
+
+function openDrawer() {
+    const drawer = document.querySelector('.drawer');
+    const backdrop = document.getElementById('drawer-backdrop');
+    const actions = document.querySelector('.actions');
+    drawer.classList.add('open');
+    backdrop.classList.add('show');
+    if (window.innerWidth <= 1023) {
+        actions.style.right = '340px';
+    }
+}
+
+function closeDrawer() {
+    const drawer = document.querySelector('.drawer');
+    const backdrop = document.getElementById('drawer-backdrop');
+    const actions = document.querySelector('.actions');
+    drawer.classList.remove('open');
+    backdrop.classList.remove('show');
+    if (window.innerWidth <= 1023) {
+        actions.style.right = '80px';
+    }
 }

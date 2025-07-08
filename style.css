@@ -139,6 +139,7 @@ input[type=range]::-moz-range-thumb {
     color: white;
     position: relative;
     overflow: hidden; /* No scroll */
+    z-index: 2000;
 }
 
 .drawer-backdrop {
@@ -159,11 +160,8 @@ input[type=range]::-moz-range-thumb {
     margin-bottom: 6rem;
 }
 
-.inner-container {
+.section-controls .inner-container.column, .section-controls .inner-container.row {
     width: 100%;
-}
-
-.section-controls .inner-container {
     padding-top: 0rem;
     padding-left: 1rem;
     padding-right: 1rem;
@@ -185,7 +183,7 @@ input[type=range]::-moz-range-thumb {
     left: 0;
     background: var(--ctrl-surface-color);
     padding: 1.25rem 1rem;
-    z-index: 555;
+    z-index: 2200;
 }
 
 .section-upload .inner-container {
@@ -291,12 +289,45 @@ h4.ctrl-description {
     background-color: var(--ctrl-hover-color);
 }
 
+.ctrl-button img {
+    width: 18px;
+    height: auto;
+}
+
 .ctrl-button.trash {
-    display: inline-flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: 2.25rem;
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
+    margin-right: 1rem;
+    align-self: center; /* 자기만 세로 중앙 정렬 */
     width: auto;
+}
+
+.ctrl-button.close {
+  display: inline-flex;
+  width: auto; 
+  box-sizing: content-box;
+  flex: 0 0 auto; /* 중요: 기본 flex 속성 무효화 */
+}
+
+.ctrl-top-menu {
+    justify-content: space-between;
+    align-items: center;
+    padding-left: var(--ctrl-item-padding);
+    padding-right: var(--ctrl-item-padding);
+    padding-bottom: 1.25rem;
+}
+
+.ctrl-top-menu .ctrl-button {
+    padding: 0 0.8rem;
+}
+
+.ctrl-button-set {
+  display: flex;
+  gap: 12px;
 }
 
 .controls {
@@ -336,7 +367,6 @@ h4.ctrl-description {
     cursor: pointer;
     border-radius: 0.5rem;
     color: var(--ctrl-primary-color);
-    /*color: var(--ctrl-secondary-color); disable*/
     font-size: 0.875rem;
     font-weight: 600;
     height: 1.75rem;
@@ -366,10 +396,13 @@ h4.ctrl-description {
 
 .line {
     display: flex;
-    flex-direction: column;
     position: relative; /* trash의 위치 기준 */
     gap: 4px;
     font-family: var(--font-sans);
+}
+
+#file-detail .line {
+    flex-direction: column;
 }
 
 .line-title {
@@ -389,22 +422,47 @@ h4.ctrl-description {
 
 #files-list .container {
     padding-bottom: 64px;
+    gap: 4px;
 }
 
 #files-list .line {
-    padding-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 1rem 4px 1rem;
+}
+
+#files-list .line:hover {
+    background-color: var(--ctrl-hover-color);
+    cursor: pointer;
+}
+
+.line-info {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+    gap: 4px;
+    margin-right: 2.5rem;
+}
+
+.line-name, .line-details {
+    overflow-wrap: break-word;
+    white-space: normal;
+    overflow: visible;
+    text-overflow: clip;
 }
 
 .line-name {
     color: var(--ctrl-tertiary-color);
-    margin-right: 28px;
     font-size: 1.05rem;
     font-weight: 400;
     line-height: 1.5rem;
 }
 
 .line-details {
-    margin-right: 28px;
     font-weight: 600;
     font-size: 0.8rem;
     line-height: 1.2rem;
@@ -618,7 +676,6 @@ body.dark-mode #image-placeholder {
 
 .popup > div > header {
     padding: 24px 24px 12px 24px;
-    /*        top  right bottom left */
     font-size: 18px;
     font-weight: 600;
     color: #000;
@@ -669,11 +726,6 @@ body.dark-mode #image-placeholder {
     font-family: var(--font-sans);
 }
 
-/*
-.popup > div > .input-group > input::placeholder {
-    color: #CBD1DC;
-}*/
-
 .popup > div > .input-group > input:focus {
     outline: none;
     border-color: var(--popup-border-color);
@@ -704,7 +756,6 @@ body.dark-mode #image-placeholder {
 
 .popup > div > footer {
     padding: 12px 24px 24px 24px;
-    /*        top right bottom left */
     display: flex;
     justify-content: flex-end;
     gap: 12px;
@@ -804,7 +855,6 @@ lottie-player {
 }
 
 .actions {
-    display: flex;
     position: absolute;
     top: 16px;
     zoom: 1;
@@ -831,7 +881,7 @@ lottie-player {
 
 .actions .button-stats {
     right: 18px;
-    background-image: url(icon/status.svg);
+    background-image: url(icon/stats.svg);
     background-size: 18px 18px;
     border-right: 1px solid var(--ctrl-border-color);
     border-radius: 3px 0 0 3px
@@ -856,6 +906,26 @@ lottie-player {
 
 .action label {
     display: none;
+}
+
+@media (max-width: 480px) {
+    .actions {
+        display: none;
+    }
+
+    .ctrl-top-menu {
+        display: flex;
+    }
+}
+
+@media (min-width: 481px) {
+    .actions {
+        display: flex;
+    }
+
+    .ctrl-top-menu {
+        display: none;
+    }
 }
 
 @media (max-width: 1023px) {
