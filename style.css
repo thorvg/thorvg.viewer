@@ -397,11 +397,14 @@ h4.ctrl-description {
 
 .line {
     display: flex;
-    flex-direction: column;
     position: relative; /* trash의 위치 기준 */
     align-items: flex-start;
     gap: 4px;
     font-family: var(--font-sans);
+}
+
+#file-detail .line {
+    flex-direction: column;
 }
 
 .line-title {
