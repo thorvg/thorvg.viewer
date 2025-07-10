@@ -301,6 +301,7 @@ h4.ctrl-description {
     height: 2.25rem;
     padding-left: 0.5rem !important;
     padding-right: 0.5rem !important;
+    margin-top: 11px;
     margin-right: 1rem;
     align-self: center; /* 자기만 세로 중앙 정렬 */
     width: auto;
@@ -396,13 +397,11 @@ h4.ctrl-description {
 
 .line {
     display: flex;
+    flex-direction: column;
     position: relative; /* trash의 위치 기준 */
+    align-items: flex-start;
     gap: 4px;
     font-family: var(--font-sans);
-}
-
-#file-detail .line {
-    flex-direction: column;
 }
 
 .line-title {
@@ -426,12 +425,8 @@ h4.ctrl-description {
 }
 
 #files-list .line {
-    display: flex;
     align-items: center;
-    justify-content: space-between;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 1rem 4px 1rem;
+    padding: 4px 1rem 8px 1rem;
 }
 
 #files-list .line:hover {
@@ -448,11 +443,11 @@ h4.ctrl-description {
     margin-right: 2.5rem;
 }
 
-.line-name, .line-details {
-    overflow-wrap: break-word;
-    white-space: normal;
-    overflow: visible;
-    text-overflow: clip;
+.line-name,
+.line-details {
+  text-align: left;
+  width: 100%;
+  word-break: break-all;
 }
 
 .line-name {
