@@ -507,7 +507,6 @@ h4.ctrl-description {
 }
 
 body.dark-mode #image-area {
-    z-index: -1;
     background-color: #1b2124;
     color: #f6f6f6;
 }
