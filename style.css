@@ -35,7 +35,7 @@
     --ctrl-tertiary-color: #a8a8a8;
     --ctrl-hover-color: rgb(66, 66, 66);
     --ctrl-border-color: rgba(255, 255, 255, 0.125);
-    --scrollbar-color: rgba(255, 255, 255, 0.2);
+    --scrollbar-color: color-mix(in oklab, #0d0d0d 30%, transparent);
 
     --popup-focused-color: #E5FF39;
     --popup-border-color: #000;
@@ -47,6 +47,8 @@
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    scrollbar-color: var(--scrollbar-color) transparent;
+    scrollbar-width: thin;
 }
 
 html, body {
@@ -81,12 +83,12 @@ hr {
 }
 
 .root-container {
-  flex: 1 1 0;
-  display: grid;
-  grid-template-columns: 1fr var(--ctrl-layout-width);
-  height: 100vh;
-  position: relative;
-  overflow: hidden;
+    flex: 1 1 0;
+    display: grid;
+    grid-template-columns: 1fr var(--ctrl-layout-width);
+    height: 100vh;
+    position: relative;
+    overflow: hidden;
 }
 
 .root-container .hidden {
@@ -143,11 +145,13 @@ input[type=range]::-moz-range-thumb {
 }
 
 .drawer-backdrop {
-  display: none;
-  position: fixed;
-  inset: 0;
-  background-color: rgba(0, 0, 0, 0.3);
-  z-index: 300;
+    display: none;
+    position: fixed;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.3);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    z-index: 300;
 }
 
 .section-controls {
@@ -155,7 +159,7 @@ input[type=range]::-moz-range-thumb {
     height: 100%;
     overflow-y: auto;
     box-sizing: border-box;
-    scrollbar-color: var(--scrollbar-color) transparent;
+    scrollbar-color: color-mix(in oklab, #f0f0f0 30%, transparent) transparent;
     padding-top: 18px;
     margin-bottom: 6rem;
 }
@@ -210,7 +214,7 @@ input[type=range]::-moz-range-thumb {
 .expand-button {
     display: none; /*flex;*/
     align-items: center;
-   justify-content: center;
+    justify-content: center;
     width: 1.5rem;
     height: 1.5rem;
     transition: all 0.2s;
@@ -308,10 +312,10 @@ h4.ctrl-description {
 }
 
 .ctrl-button.close {
-  display: inline-flex;
-  width: auto; 
-  box-sizing: content-box;
-  flex: 0 0 auto; /* 중요: 기본 flex 속성 무효화 */
+    display: inline-flex;
+    width: auto;
+    box-sizing: content-box;
+    flex: 0 0 auto; /* 중요: 기본 flex 속성 무효화 */
 }
 
 .ctrl-top-menu {
@@ -327,8 +331,8 @@ h4.ctrl-description {
 }
 
 .ctrl-button-set {
-  display: flex;
-  gap: 12px;
+    display: flex;
+    gap: 12px;
 }
 
 .controls {
@@ -445,9 +449,9 @@ h4.ctrl-description {
 
 .line-name,
 .line-details {
-  text-align: left;
-  width: 100%;
-  word-break: break-all;
+    text-align: left;
+    width: 100%;
+    word-break: break-all;
 }
 
 .line-name {
@@ -522,22 +526,14 @@ body.dark-mode #image-area {
     align-items: center;
     font-family: var(--font-sans);
     font-size: 1.15rem;
-    font-weight: 300;
+    font-weight: 500;
     letter-spacing: .05em;
     text-align: center;
     gap: 1rem;
     color: #737373;
     cursor: pointer;
-    border-radius: 1rem;
-    border-width: 2px;
-    border-style: solid;
-    border-image-source: repeating-linear-gradient(
-      45deg,
-      #cccccc 0px,
-      #cccccc 5px,
-      transparent 5px,
-      transparent 10px
-    );
+    border-radius: 0.5rem;
+    background-color: rgba(0,0,0,0.07);
     border-image-slice: 1;
     border-image-repeat: round;
 }
@@ -547,13 +543,7 @@ body.dark-mode #image-area {
 }
 
 body.dark-mode #image-placeholder {
-    border-image-source: repeating-linear-gradient(
-      45deg,
-      #3d4a52 0px,
-      #3d4a52 5px,
-      transparent 5px,
-      transparent 10px
-    );
+    background-color: rgba(0,0,0,0.1);
     color: #5b6f7b;
     cursor: pointer;
 }
@@ -633,6 +623,9 @@ body.dark-mode #image-placeholder {
     color: white;
     border-top-left-radius: 5px;
     border-top-right-radius: 5px;
+    border-top: 1px solid var(--ctrl-border-color);
+    border-left: 1px solid var(--ctrl-border-color);
+    border-right: 1px solid var(--ctrl-border-color);
     white-space: nowrap;
 }
 
@@ -757,7 +750,7 @@ body.dark-mode #image-placeholder {
 }
 
 .popup-button {
-	box-sizing: border-box;
+    box-sizing: border-box;
     border: 1px solid var(--popup-border-color);
     background-color: var(--popup-border-color);
     color: white;
