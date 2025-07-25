@@ -504,6 +504,7 @@ h4.ctrl-description {
     align-items: center;
     justify-content: center;
     font-weight: var(--font-sans);
+    z-index: 1;
 }
 
 body.dark-mode #image-area {
