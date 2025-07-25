@@ -28,7 +28,6 @@
     <meta name="description" content="ThorVG Viewer Application">
     <meta name="author" content="co-authored by Shinwoo Kim, Hermet Park, Michal Maciola, Jinny You">
 
-    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300..800;1,300..800&family=Source+Code+Pro:ital,wght@0,200..900;1,200..900&display=swap" rel="stylesheet">
@@ -38,13 +37,13 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <script src="./lottie-player.js"></script>
 </head>
-<body>
+<body class="">
     <div class="root-container">
         <div class="preview">
             <button id="drawer-toggle" class="button drawer-toggle"></button>
             <div id="image-area">
                 <div id="image-placeholder">
-                    <p>Drag and drop a file here, or click to browse<br/>(.svg, lottie: .json/.lot)</p>
+                    <p>Drag and drop a file here or click to browse<br/>(.svg, lottie: .json/.lot)</p>
                 </div>
                 <input id="image-file-selector" type="file" accept=".svg,.lot,.json,.jpg,.png" multiple>
             </div>
