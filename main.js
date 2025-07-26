@@ -185,6 +185,7 @@ function initialize() {
     window.addEventListener('resize', () => {
         if (window.innerWidth >= 1024) {
             // Inline style removed => CSS media query reapplied
+            const actions = document.querySelector('.actions');
             actions.style.right = '';
         }
     });
@@ -443,13 +444,6 @@ function onConsoleWindow(event) {
     document.getElementById("console-area").classList.toggle("hidden");
 }
 
-/*
-function onConsoleBottom(event) {
-    var consoleWindow = document.getElementById("console-area");
-    consoleWindow.scrollTop = consoleWindow.scrollHeight;
-}
-*/
-
 function onZoomSlider(event) {
     var value = event.target.value;
     size = Math.floor(512 * (value / 100 + 0.25));
@@ -639,8 +633,11 @@ function openDrawer() {
     const actions = document.querySelector('.actions');
     drawer.classList.add('open');
     backdrop.classList.add('show');
+
     if (window.innerWidth <= 1023) {
         actions.style.right = '340px';
+    } else {
+        actions.style.right = ''; // Remove inline to prioritize CSS
     }
 }
 
@@ -650,7 +647,10 @@ function closeDrawer() {
     const actions = document.querySelector('.actions');
     drawer.classList.remove('open');
     backdrop.classList.remove('show');
+
     if (window.innerWidth <= 1023) {
         actions.style.right = '80px';
+    } else {
+        actions.style.right = ''; // Remove inline to prioritize CSS
     }
 }
