@@ -456,7 +456,7 @@ function onRendererMode(event) {
 }
 
 function onConsoleWindow(event) {
-    document.getElementById("console-area").classList.toggle("hidden");
+    document.getElementById("console-area").classList.toggle("show");
 }
 
 function onZoomSlider(event) {

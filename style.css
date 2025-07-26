@@ -22,7 +22,7 @@
 
 :root {
     --font-sans: "Open Sans", 'Noto Mono', 'DejaVu Sans Mono', monospace;
-    --font-mono: "Source Code Pro", Roboto Mono, monospace;
+    --font-mono: "JetBrains Mono", Roboto Mono, monospace;
 
     --ctrl-item-padding: 1rem;
     --ctrl-layout-width: 320px;
@@ -36,6 +36,7 @@
     --ctrl-hover-color: rgb(66, 66, 66);
     --ctrl-border-color: rgba(255, 255, 255, 0.125);
     --scrollbar-color: color-mix(in oklab, #0d0d0d 30%, transparent);
+    --ctrl-scrollbar-color: color-mix(in oklab, #f0f0f0 30%, transparent);
 
     --popup-focused-color: #E5FF39;
     --popup-border-color: #000;
@@ -157,7 +158,7 @@ input[type=range]::-moz-range-thumb {
     height: 100%;
     overflow-y: auto;
     box-sizing: border-box;
-    scrollbar-color: color-mix(in oklab, #f0f0f0 30%, transparent) transparent;
+    scrollbar-color: var(--ctrl-scrollbar-color) transparent;
     padding-top: 18px;
     margin-bottom: 6rem;
 }
@@ -493,7 +494,7 @@ h4.ctrl-description {
     display: flex;
     flex-direction: column;
     height: 100%;
-    overflow: auto;
+    overflow: hidden;
 }
 
 #image-area {
@@ -552,45 +553,64 @@ body.dark-mode #image-placeholder {
 }
 
 #console-area {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    width: 100%;
-    height: 150px;
-    overflow-y: scroll;
-    padding-bottom: 28px;
-    z-index: 500;
-    background-color: #f5f5f5;
-    border-top: 1px solid #e5e7ec;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 150px;
+  padding: 6px 0;
+  overflow-y: scroll;
+  z-index: 500;
+  background-color: #2C2C2C;
+  border-top: 1px solid var(--ctrl-border-color);
+  scrollbar-color: var(--ctrl-scrollbar-color) transparent;
+
+  /* 초기 상태: 아래로 숨김 + 투명 */
+  transform: translateY(100%);
+  pointer-events: none;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+}
+
+#console-area.show {
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
 #console-area > span {
     display: block;
-    font-size: 14px;
+    font-size: 12px;
     font-family: var(--font-mono);
     -webkit-user-select: text;
-    padding-left: 24px;
+    padding: 2px 14px;
     line-height:  23px;
-    border-bottom: 1px solid #f8f8f8;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     user-select: text;
 }
 
 #console-area > span.console-type-inner {
-    color: #2969b3;
-    background-color: #f2f9fd;
-    border-bottom-color: #d5e8f8;
+    color: var(--ctrl-title-color);
 }
 
 #console-area > span.console-type-error {
-    color: #b32936;
-    background-color: #fdf2f5;
-    border-bottom-color: #f8d5db;
+    color: #B71C1C;
+    background-color: #322a26;
 }
 
 #console-area > span.console-type-warning {
     color: #b38a29;
-    background-color: #fdf8f2;
-    border-bottom-color: #f8ebd5;
+    background-color: #342f24;
+}
+
+#console-area > span::selection {
+    background-color: rgba(255, 255, 255, 0.5);
+}
+
+#console-area > span.console-type-error::selection {
+    color: #E53935;
+}
+
+#console-area > span.console-type-warning::selection {
+    color: #FFF176;
 }
 
 #console-bottom-scroll {
