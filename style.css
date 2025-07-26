@@ -941,6 +941,7 @@ lottie-player {
     }
 
     .drawer-toggle {
+        display: block;
         background-image: url(icon/menu.svg);
         position: absolute;
         top: 16px;
@@ -948,6 +949,7 @@ lottie-player {
         background-size: 18px 18px;
         border-radius: 3px;
         border: 1px solid var(--ctrl-border-color);
+        z-index: 400;
     }
 
     .drawer-backdrop.show {
