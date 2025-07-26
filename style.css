@@ -849,7 +849,7 @@ lottie-player {
 .actions {
     position: fixed;
     top: 16px;
-    right: 340px;
+    right: 80px;
     z-index: 1000;
     border: 1px solid var(--ctrl-border-color);
     border-radius: 4px;
@@ -913,7 +913,7 @@ lottie-player {
 @media (min-width: 481px) {
     .actions {
         display: flex;
-        right: 80px;
+        /* .action의 right는 main.js에서 적용 */
     }
 
     .ctrl-top-menu {

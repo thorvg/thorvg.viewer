@@ -183,11 +183,26 @@ function initialize() {
     });
     document.querySelector('.ctrl-button.history').addEventListener("click", onConsoleWindow, false);
     window.addEventListener('resize', () => {
-        if (window.innerWidth >= 1024) {
-            // Inline style removed => CSS media query reapplied
+        requestAnimationFrame(() => {
+            const drawer = document.querySelector('.drawer');
+            const backdrop = document.getElementById('drawer-backdrop');
+            if (window.innerWidth >= 1024 && drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+                backdrop.classList.remove('show');
+            }
+
             const actions = document.querySelector('.actions');
-            actions.style.right = '';
-        }
+            // Small screen range (481 - 1023)
+            if (window.innerWidth >= 481 && window.innerWidth <= 1023) {
+                if (drawer.classList.contains('open')) {
+                    actions.style.right = '340px';
+                } else {
+                    actions.style.right = '80px';
+                }
+            } else { // Remove inline styles on wide screens or mobile (480 or less)
+                actions.style.right = '';
+            }
+        });
     });
 }
 
