@@ -579,7 +579,7 @@ body.dark-mode #image-placeholder {
   border-top: 1px solid var(--ctrl-border-color);
   scrollbar-color: var(--ctrl-scrollbar-color) transparent;
 
-  /* 초기 상태: 아래로 숨김 + 투명 */
+  /* initial status: hidden + transparent */
   transform: translateY(100%);
   pointer-events: none;
   transition: transform 0.3s ease, opacity 0.3s ease;
@@ -947,7 +947,7 @@ lottie-player {
 @media (min-width: 481px) {
     .actions {
         display: flex;
-        /* .action의 right는 main.js에서 적용 */
+        /* apply .action right in main.js */
     }
 
     .ctrl-top-menu {
