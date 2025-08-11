@@ -87,31 +87,6 @@ function createTabs() {
     file.textContent = '';
     file.appendChild(createTitleLine("File Name", filename));
     file.appendChild(createTitleLine("Resolution", sizeText));
-
-    async function handleExportPngClick() {
-        try {
-            await player.save2png();
-        } catch (err) {
-            let message = "Unable to save the Png data.";
-            consoleLog(message, ConsoleLogTypes.Error);
-            alert(message);
-        }
-    }
-    document.getElementById("export-png").addEventListener("click", handleExportPngClick);
-
-    async function handleExportGifClick() {
-        try {
-            if (!filedata) {
-                throw new Error("File data is not defined. Please upload a valid file before exporting.");
-            }
-            player.save2gif(filedata);
-        } catch (err) {
-            let message = err.message || "Unable to save the Gif data.";
-            consoleLog(message, ConsoleLogTypes.Error);
-            alert(message);
-        }
-    }
-    document.getElementById("export-gif").addEventListener("click", handleExportGifClick);
 }
 
 //console message
@@ -144,6 +119,8 @@ function initialize() {
         evt.target.value = '';
     }, false);
 
+    document.getElementById("export-png").addEventListener("click", handleExportPngClick, false);
+    document.getElementById("export-gif").addEventListener("click", handleExportGifClick, false);
     document.getElementById("nav-dark-mode").addEventListener("change", onDarkMode, false);
     document.getElementById("nav-stats-mode").addEventListener("change", onStatsMode, false);
     document.getElementById("nav-history").addEventListener("click", onConsoleWindow, false);
@@ -243,6 +220,29 @@ function fileDropOrBrowseHandle(files) {
     const targetFile = filesList[filesList.length - 1];
     loadFile(targetFile);
     return false;
+}
+
+async function handleExportPngClick() {
+    try {
+        await player.save2png();
+    } catch (err) {
+        const message = "Unable to save the Png data.";
+        consoleLog(message, ConsoleLogTypes.Error);
+        alert(message);
+    }
+}
+
+async function handleExportGifClick() {
+    try {
+        if (!filedata) {
+            throw new Error("File data is not defined. Please upload a valid file before exporting.");
+        }
+        player.save2gif(filedata);
+    } catch (err) {
+        const message = err.message || "Unable to save the Gif data.";
+        consoleLog(message, ConsoleLogTypes.Error);
+        alert(message);
+    }
 }
 
 function frameCallback() {
