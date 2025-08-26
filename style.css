@@ -1006,3 +1006,7 @@ lottie-player {
         display: none;
     }
 }
+
+.thorvg {
+    border: 3px solid rgba(136, 136, 136, 0.3);
+}
