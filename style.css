@@ -823,6 +823,7 @@ lottie-player {
     overflow: hidden;
     display: block;
     z-index: 100;
+    border: 3px solid rgba(136, 136, 136, 0.3);
 }
 
 #renderer-select {
@@ -1005,8 +1006,4 @@ lottie-player {
     .drawer-toggle {
         display: none;
     }
-}
-
-.thorvg {
-    border: 3px solid rgba(136, 136, 136, 0.3);
 }
