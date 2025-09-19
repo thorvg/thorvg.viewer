@@ -873,6 +873,48 @@ lottie-player {
     cursor: not-allowed;
 }
 
+#quality-select {
+    position: relative;
+    display: inline-block;
+    flex-direction: column;
+    justify-content: center;
+    align-items: start;
+    width: 100%;
+    height: 2.25rem;
+}
+
+#quality-dropdown {
+    width: 100%;
+    padding: 0 20px;
+    border: none;
+    background-color: rgb(48, 48, 48);
+    color: var(--ctrl-title-color);
+    height: 2.25rem;
+    border-radius: 0.5rem;
+    font-family: var(--font-sans);
+    font-weight: 500;
+    font-size: 1rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+#quality-select .arrow-icon {
+    position: absolute;
+    pointer-events: none;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 1rem;
+    height: 1rem;
+    color: var(--ctrl-primary-color);
+}
+
+#quality-dropdown:hover {
+    color: var(--ctrl-primary-color);
+    background-color: var(--ctrl-hover-color);
+}
+
 #renderer-dropdown {
     padding-right: 40px;
     appearance: none;

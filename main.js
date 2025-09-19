@@ -125,6 +125,7 @@ function initialize() {
     document.getElementById("nav-stats-mode").addEventListener("change", onStatsMode, false);
     document.getElementById("nav-history").addEventListener("click", onConsoleWindow, false);
     document.getElementById("renderer-dropdown").addEventListener("change", onRendererMode, false);
+    document.getElementById("quality-dropdown").addEventListener("change", onQualityMode, false);
     document.querySelector('.button-stats').addEventListener('click', () => {
     const checkbox = document.querySelector('#nav-stats-mode input[type="checkbox"]');
         checkbox.checked = !checkbox.checked;
@@ -290,6 +291,7 @@ function loadData(data, fileExtension) {
         createFilesListTab();
         enableZoomContainer();
         enableProgressContainer();
+        initQualityValue();
     }, 100);
 }
 
@@ -360,6 +362,15 @@ function enableProgressContainer(enable = true) {
 
     var value = document.getElementById("progress-value");
     value.innerHTML = 0 + " / " + player.totalFrame;
+}
+
+//quality dropdown
+function initQualityValue(enable = true) {
+    const defaultQuality = (renderer === 'sw') ? 30 : 60;
+    player.setQuality(defaultQuality);
+    
+    const qualityDropdown = document.getElementById('quality-dropdown');
+    qualityDropdown.value = defaultQuality;
 }
 
 function resize(width, height) {
@@ -449,10 +460,18 @@ function onRendererMode(event) {
     default:
       return;
   }
+  
   if (!filedata) {
     return;
   }
   loadData(filedata, filetype);
+}
+
+function onQualityMode(event) {
+    if (!player) {
+        return;
+    }
+    player.setQuality(event.target.value);
 }
 
 function onConsoleWindow(event) {
