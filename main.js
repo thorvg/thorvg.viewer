@@ -26,7 +26,7 @@ var filetype;
 var filename;
 var filedata;
 var size = 800;
-var renderer = 'sw';
+var renderer = 'gl';
 
 //console output
 const ConsoleLogTypes = { None : '', Inner : 'console-type-inner', Error : 'console-type-error', Warning : 'console-type-warning' };
