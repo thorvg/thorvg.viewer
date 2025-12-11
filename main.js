@@ -20,6 +20,8 @@
  * SOFTWARE.
  */
 
+const dprFactor = 1 + ((window.devicePixelRatio - 1) * 0.75);
+
 var player;
 var filesList;
 var filetype;
@@ -141,6 +143,7 @@ function initialize() {
 
     document.getElementById("zoom-slider").addEventListener("input", onZoomSlider, false);
     document.getElementById("zoom-value").addEventListener("keydown", onZoomValue, false);
+    document.getElementById("zoom-value").textContent = size * dprFactor + " x " + size * dprFactor;
 
     document.getElementById("progress-slider").addEventListener("input", onProgressSlider, false);
     document.getElementById("progress-play").addEventListener("click", onProgressPlay, false);
@@ -292,6 +295,7 @@ function loadData(data, fileExtension) {
         enableZoomContainer();
         enableProgressContainer();
         initQualityValue();
+        refreshZoomValue();
     }, 100);
 }
 
@@ -657,7 +661,12 @@ function refreshProgressValue() {
 
 function refreshZoomValue() {
     var value = document.getElementById("zoom-value");
-    value.innerHTML = player.offsetWidth + " x " + player.offsetHeight;
+
+    var canvas = player.querySelector('canvas');
+    const width = Math.round(canvas.width * dprFactor);
+    const height = Math.round(canvas.height * dprFactor);
+    value.innerHTML = width + " x " + height;
+
     value.classList.remove("incorrect");
 }
 
