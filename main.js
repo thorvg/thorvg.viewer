@@ -141,6 +141,7 @@ function initialize() {
 
     document.getElementById("zoom-slider").addEventListener("input", onZoomSlider, false);
     document.getElementById("zoom-value").addEventListener("keydown", onZoomValue, false);
+    document.getElementById("zoom-value").textContent = size + " x " + size;
 
     document.getElementById("progress-slider").addEventListener("input", onProgressSlider, false);
     document.getElementById("progress-play").addEventListener("click", onProgressPlay, false);
@@ -302,6 +303,7 @@ function loadData(data, fileExtension) {
         enableZoomContainer();
         enableProgressContainer();
         initQualityValue();
+        requestAnimationFrame(() => refreshZoomValue());
     }, 100);
 }
 
@@ -499,10 +501,10 @@ function onConsoleWindow(event) {
 
 function onZoomSlider(event) {
     var value = event.target.value;
-    size = Math.floor(512 * (value / 100 + 0.25));
+    size = Math.floor(640 * (value / 100 + 0.25));
 
     resize(size, size);
-    refreshZoomValue();
+    requestAnimationFrame(() => refreshZoomValue());
 }
 
 function onZoomValue(event) {
@@ -511,7 +513,7 @@ function onZoomValue(event) {
         var matched = value.match(/^(\d{1,5})\s*x\s*(\d{1,5})$/);
         if (matched) {
             resize(matched[1], matched[2]);
-            refreshZoomValue();
+            requestAnimationFrame(() => refreshZoomValue());
         } else {
             event.srcElement.classList.add("incorrect");
         }
@@ -676,7 +678,12 @@ function refreshProgressValue() {
 
 function refreshZoomValue() {
     var value = document.getElementById("zoom-value");
-    value.innerHTML = player.offsetWidth + " x " + player.offsetHeight;
+
+    var canvas = player.querySelector('canvas');
+    const width = Math.round(canvas.width);
+    const height = Math.round(canvas.height);
+    value.innerHTML = width + " x " + height;
+
     value.classList.remove("incorrect");
 }
 
