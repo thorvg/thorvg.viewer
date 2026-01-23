@@ -1,5 +1,9 @@
 # ThorVG Viewer
 
+<p align="center">
+  <img width="800" height="auto" src="https://github.com/thorvg/thorvg.site/blob/main/readme/logo/512/thorvg-banner.png">
+</p
+
 ThorVG Viewer is a verification tool for the ThorVG Engine. It facilitates immediate rendering in a web browser using the ThorVG WebAssembly binary, thereby enabling real-time editing of vector elements. The loader operates locally, ensuring that resources are not uploaded to any external servers, thus safeguarding the copyright of the designer's resources.
 </br>
 </br>
