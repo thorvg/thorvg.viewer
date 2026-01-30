@@ -264,8 +264,10 @@ function attachAllEventListeners() {
     player.addEventListener('error', errorCallback);
 }
 
-function loadData(data, fileExtension) {
-    filedata = data;
+function initPlayer() {
+    if (player) {
+        return;
+    }
 
     // Cleanup any existing lottie-player elements
     const existingPlayers = document.querySelectorAll('lottie-player');
@@ -279,8 +281,16 @@ function loadData(data, fileExtension) {
     player.loop = true;
     player.wasmUrl = 'thorvg.wasm';
     player.renderConfig = { renderer };
+
     attachAllEventListeners();
+
     document.querySelector('#image-area').appendChild(player);
+}
+
+function loadData(data, fileExtension) {
+    filedata = data;
+
+    initPlayer();
 
     // FIXME: delay should be removed
     setTimeout(async () => {
@@ -315,6 +325,9 @@ function loadFile(file) {
 
 function loadUrl(url) {
     const fileExtension = url.split('.').pop().toLowerCase();
+
+    initPlayer();
+
     player.load(url, fileExtension);
 
     showImageCanvas();
@@ -526,7 +539,7 @@ function onProgressStop() {
 
 function onAddFileUrl() {
     var popup = document.createElement("div");
-    popup.innerHTML = '<div><header>Add file by URL</header><div class="input-group"><span>https://</span><input type="text" id="url-field" placeholder="raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/tiger.svg" /></div><div class="posttext"><a href="https://github.com/thorvg/thorvg.viewer" target="_blank">Thorvg Viewer</a> can load graphics from an outside source. To load a resource at startup, enter its link through the url parameter s (?s=[link]). Such url can be easily shared online. Live example: <a href="https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/tiger.svg" target="_blank" id="url-example">https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg/main/src/examples/images/tiger.svg</a></div><footer><a class="popup-button" id="popup-cancel">Cancel</a><a class="popup-button" id="popup-ok">Add</a></footer></div>';
+    popup.innerHTML = '<div><header>Add file by URL</header><div class="input-group"><span>https://</span><input type="text" id="url-field" placeholder="raw.githubusercontent.com/thorvg/thorvg.example/refs/heads/main/res/svg/tiger.svg" /></div><div class="posttext"><a href="https://github.com/thorvg/thorvg.viewer" target="_blank">Thorvg Viewer</a> can load graphics from an outside source. To load a resource at startup, enter its link through the url parameter s (?s=[link]). Such url can be easily shared online. Live example: <a href="https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg.example/refs/heads/main/res/svg/tiger.svg" target="_blank" id="url-example">https://thorvg.github.io/thorvg.viewer/?s=https://raw.githubusercontent.com/thorvg/thorvg.example/refs/heads/main/res/svg/tiger.svg</a></div><footer><a class="popup-button" id="popup-cancel">Cancel</a><a class="popup-button" id="popup-ok">Add</a></footer></div>';
     popup.setAttribute('class', 'popup');
     document.body.appendChild(popup);
 
