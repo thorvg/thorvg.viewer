@@ -1,15 +1,15 @@
 ## Project Lead
-- Hermet Park <hermetpark@gmail.com>
+- Hermet Park @hermet
 
 ## Maintainer
-- Jinny You <jinny@lottiefiles.com>
+- Jinny You @tinyjin
 
 ## Core Contributors
-- Shinwoo Kim <cinoo.kim@samsung.com>
-- Michal Maciola <m.maciola@samsung.com>
-- YouJin Lee <ol-of@naver.com>
+- Shinwoo Kim @kimcinoo
+- Michal Maciola @mmaciola
+- YouJin Lee @ol-of
 
 ## Contributors
-- JunSu Choi <jsuya.choi@samsung.com>
-- GunYoung Park <rjsdud3263@gmail.com>
-- SoonGeon Noh <nors.nsg@gmail.com>
+- Junsu Choi @JSUYA
+- KunYoung Park @kunyoungparkk
+- SoonGeon Noh @Nor-s
