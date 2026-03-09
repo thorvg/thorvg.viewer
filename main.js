@@ -474,6 +474,12 @@ function onRendererMode(event) {
       return;
   }
   
+  if (player) {
+    player.destroy();
+    player.remove();
+    player = null;
+  }
+
   if (!filedata) {
     return;
   }
