@@ -293,10 +293,10 @@ function loadData(data, fileExtension) {
 
     initPlayer();
 
-    // FIXME: delay should be removed
-    setTimeout(async () => {
+    requestAnimationFrame(async () => {
+        player.style.width = `${size}px`;
+        player.style.height = `${size}px`;
         await player.load(data, fileExtension);
-        resize(size, size);
         createTabs();
         showImageCanvas();
         createFilesListTab();
@@ -304,7 +304,7 @@ function loadData(data, fileExtension) {
         enableProgressContainer();
         initQualityValue();
         requestAnimationFrame(() => refreshZoomValue());
-    }, 100);
+    });
 }
 
 function loadFile(file) {
