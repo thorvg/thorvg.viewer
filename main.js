@@ -500,9 +500,7 @@ function onConsoleWindow(event) {
 }
 
 function onZoomSlider(event) {
-    var value = event.target.value;
-    size = Math.floor(640 * (value / 100 + 0.25));
-
+    size = Math.floor(1500 * (event.target.value / 300));     //range: 0 - 1500, zoom level: 0 - 300
     resize(size, size);
     requestAnimationFrame(() => refreshZoomValue());
 }
