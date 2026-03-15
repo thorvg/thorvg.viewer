@@ -25,7 +25,7 @@ var filesList;
 var filetype;
 var filename;
 var filedata;
-var size = 800;
+var size = 480;
 var renderer = 'gl';
 
 //console output
@@ -500,9 +500,7 @@ function onConsoleWindow(event) {
 }
 
 function onZoomSlider(event) {
-    var value = event.target.value;
-    size = Math.floor(640 * (value / 100 + 0.25));
-
+    size = Math.floor(1920 * (event.target.value / 500));     //range: 0 - 1920, zoom level: 0 - 500
     resize(size, size);
     requestAnimationFrame(() => refreshZoomValue());
 }
