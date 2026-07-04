@@ -1,3 +1,7 @@
+[![License](https://img.shields.io/badge/licence-MIT-green.svg?style=flat)](LICENSE)
+[![Discord](https://img.shields.io/badge/Community-5865f2?style=flat&logo=discord&logoColor=white)](https://discord.gg/n25xj6J6HM)
+[![OpenCollective](https://img.shields.io/badge/OpenCollective-84B5FC?style=flat&logo=opencollective&logoColor=white)](https://opencollective.com/thorvg)
+
 # ThorVG Viewer
 
 <p align="center">
