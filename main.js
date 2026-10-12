@@ -145,6 +145,9 @@ function initialize() {
     document.getElementById("zoom-value").textContent = size + " x " + size;
 
     document.getElementById("progress-slider").addEventListener("input", onProgressSlider, false);
+    document.getElementById("progress-value").addEventListener("focus", onProgressValue, false);
+    document.getElementById("progress-value").addEventListener("blur", refreshProgressValue, false);
+    document.getElementById("progress-value").addEventListener("keydown", onProgressValue, false);
     document.getElementById("progress-play").addEventListener("click", onProgressPlay, false);
     document.getElementById("progress-pause").addEventListener("click", onProgressPause, false);
     document.getElementById("progress-stop").addEventListener("click", onProgressStop, false);
@@ -289,7 +292,7 @@ function initPlayer() {
     document.querySelector('#image-area').appendChild(player);
 }
 
-function loadData(data, fileExtension) {
+function loadData(data, fileExtension, frame = null) {
     filedata = data;
 
     initPlayer();
@@ -298,6 +301,7 @@ function loadData(data, fileExtension) {
         player.style.width = `${size}px`;
         player.style.height = `${size}px`;
         await player.load(data, fileExtension);
+        if (frame !== null) await player.seek(frame);
         createTabs();
         showImageCanvas();
         createFilesListTab();
@@ -326,12 +330,12 @@ function loadFile(file) {
     }
 }
 
-function loadUrl(url) {
+async function loadUrl(url) {
     const fileExtension = url.split('.').pop().toLowerCase();
 
     initPlayer();
 
-    player.load(url, fileExtension);
+    await player.load(url, fileExtension);
 
     showImageCanvas();
     enableZoomContainer();
@@ -373,11 +377,12 @@ function enableZoomContainer(enable = true) {
 //progress slider
 function enableProgressContainer(enable = true) {
     var slider = document.getElementById("progress-slider");
-    slider.disabled = !enable;
+    slider.disabled = !enable || player.totalFrame <= 0;
     slider.value = 0;
 
     var value = document.getElementById("progress-value");
-    value.innerHTML = 0 + " / " + player.totalFrame;
+    value.contentEditable = !slider.disabled;
+    refreshProgressValue();
 }
 
 //quality dropdown
@@ -479,6 +484,7 @@ function onRendererMode(event) {
       return;
   }
   updateVersionInfo();
+  var frame = player && player.currentState !== 'playing' ? player.currentFrame : null;
   
   if (player) {
     player.destroy();
@@ -489,7 +495,7 @@ function onRendererMode(event) {
   if (!filedata) {
     return;
   }
-  loadData(filedata, filetype);
+  loadData(filedata, filetype, frame);
 }
 
 function onQualityMode(event) {
@@ -528,6 +534,21 @@ function onProgressSlider(event) {
     refreshProgressValue();
 }
 
+function onProgressValue(event) {
+    if (event.type === 'focus') {
+        if (document.getElementById("progress-slider").disabled) return;
+        player.pause();
+        event.target.textContent = Number(player.currentFrame.toFixed(6));
+    } else if (event.key === 'Enter') {
+        var frame = Number(event.target.textContent);
+        if (event.target.textContent.trim() && Number.isFinite(frame) && frame >= 0 && frame <= player.totalFrame) player.seek(frame);
+        event.target.blur();
+        event.preventDefault();
+        refreshProgressValue();
+        window.getSelection().removeAllRanges();
+    }
+}
+
 function onProgressPlay() {
     player.play();
 }
@@ -543,8 +564,7 @@ function onProgressStop() {
     var slider = document.getElementById("progress-slider");
     slider.value = 0;
 
-    var value = document.getElementById("progress-value");
-    value.innerHTML = 0 + " / " + player.totalFrame;
+    refreshProgressValue();
 }
 
 function onAddFileUrl() {
@@ -675,7 +695,8 @@ function refreshProgressValue() {
     var slider = document.getElementById("progress-slider");
     slider.value = (player.currentFrame / player.totalFrame) * 100;
     var value = document.getElementById("progress-value");
-    value.innerHTML = Math.round(player.currentFrame) + " / " + Math.floor(player.totalFrame);
+    if (document.activeElement !== value) value.textContent = Math.round(player.currentFrame);
+    document.getElementById("progress-total").textContent = Math.floor(player.totalFrame);
 }
 
 function refreshZoomValue() {
