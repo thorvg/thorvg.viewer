@@ -227,7 +227,7 @@ function fileDropOrBrowseHandle(files) {
 
 async function handleExportPngClick() {
     try {
-        await player.save2png();
+        await player.save2png(filedata);
     } catch (err) {
         const message = "Unable to save the Png data.";
         consoleLog(message, ConsoleLogTypes.Error);
