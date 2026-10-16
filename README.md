@@ -1,3 +1,4 @@
+[![LFX Active Contributors](https://insights.linuxfoundation.org/api/badge/active-contributors?project=thorvg&repos=https://github.com/thorvg/thorvg.view)](https://insights.linuxfoundation.org/project/thorvg/repository/thorvg_thorvg.view)
 [![License](https://img.shields.io/badge/licence-MIT-green.svg?style=flat)](LICENSE)
 [![Wikipedia](https://img.shields.io/badge/Wikipedia-000000?style=flat&logo=wikipedia&logoColor=white)](https://en.wikipedia.org/wiki/Thor_Vector_Graphics)
 [![Discord](https://img.shields.io/badge/Community-5865f2?style=flat&logo=discord&logoColor=white)](https://discord.gg/n25xj6J6HM)
